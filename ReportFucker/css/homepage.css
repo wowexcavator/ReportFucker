@@ -44,14 +44,14 @@
 }
 
 .taskcp{
-	background-image: url('tc.png');
+	background-image: url('../img/tc.png');
 	background-repeat: no-repeat;
 	background-position-x: 64px;
     background-position-y: 26px;
 }
 
 .tasksb{
-	background-image: url('sb.png');
+	background-image: url('../img/sb.png');
 	background-repeat: no-repeat;
 	background-position-x: 64px;
     background-position-y: 26px;
@@ -245,8 +245,8 @@
     	cursor: pointer;
     }
 	.tasknullbg{
-		background-image: url(tasknullbg.jpg);
-		background-repeat: no-repeat;
+		background-image: url('../img/tasknullbg.jpg');
+		background-repeat: no-repeat; 
 		
 	}
 	.taskcontent{

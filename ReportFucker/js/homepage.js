@@ -7,7 +7,7 @@ window.LocalTaskList = [];
 //本地存储操作对象
 window.DB = new localDB();
 //顶级状态管理器
-window.TopState  = {
+window.TopState = {
 	serverState: '',
 };
 //消息管理器
@@ -17,7 +17,7 @@ window.TM = new TaskManage();
 //列表管理
 window.TL = new TaskList();
 //服务器状态通信
-window.NS=new NetServer();
+window.NS = new NetServer();
 $(function() { //设置窗的弹出动画
 	$("#btn-set").click(function() {
 		$("#setting").show();
@@ -530,8 +530,8 @@ function NetServer() {
 		getSetInfo: 'getSetInfo',
 		setEmailInfo: 'setEmailInfo',
 		testEmail: 'testEmail',
-		setReportTimer:'setReportTimer',
-		addAutoTask:'addAutoTask',
+		setReportTimer: 'setReportTimer',
+		addAutoTask: 'addAutoTask',
 	};
 	//登录
 	this.login = function(param, success, warn) {
@@ -556,7 +556,6 @@ function NetServer() {
 	this.editpass = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.editpass;
 			var data = {
-				name: param.name,
 				oldpass: param.oldpass,
 				pass: param.pass,
 			}
@@ -615,30 +614,58 @@ function NetServer() {
 			var success = function(obj) {
 				if(obj.state == 'success') {
 					if(obj.data) {
-						if(obj.data.name){
+						if(obj.data.name) {
 							$("#st-username").text(obj.data.name);
 						}
-						if(obj.data.useremail){
+						if(obj.data.useremail) {
 							$("#st-username").text(obj.data.useremail);
 						}
-						if(obj.data.useremailpasslength){
-							var str='';
-							for(var i=0;i<obj.data.useremailpasslength;i++){
-								str+='*';
-							}
-							$("#st-myemailpass").text(obj.data.name);
-						}
-						if(obj.data.emailserver){
+						if(obj.data.emailserver) {
 							$("#st-myemailaddress").text(obj.data.emailserver);
 						}
-						if(obj.data.reciveaddress){
+						if(obj.data.reciveaddress) {
 							$("#st-reciveaddress").text(obj.data.reciveaddress);
 						}
-						if(obj.data.autosend!=null){
-							
+						if(obj.data.autosend != null) {
+							if(obj.data.autosend) {
+								$('#radio-autosend’').attr('checked', 'checked');
+							} else {
+								$('#radio-closesend').attr('checked', 'checked');
+							}
 						}
-						if(obj.data.name){
-							$("#st-username").text(obj.data.name);
+						if(obj.data.sendfrequency) {
+							if(obj.data.sendfrequency == 'day') {
+								$('#radio-day').attr('checked', 'checked');
+							}
+							if(obj.data.sendfrequency == 'week') {
+								$('#radio-week').attr('checked', 'checked');
+							}
+
+						}
+						if(obj.data.sendday) {
+							$('#select-day').val(obj.data.sendday);
+
+						}
+						if(obj.data.sendhour) {
+							$('.select-hour').val(obj.data.sendhour);
+
+						}
+						if(obj.data.sendmine) {
+
+							$('.select-mine').val(obj.data.sendmine);
+						}
+						if(obj.data.tclist) {
+							if(obj.data.tclist.length > 0) {
+								var html = '';
+								for(var i = 0; i < obj.data.tclist.length; i++) {
+								var node=obj.data.tclist[i];
+								html += '<tr data-id="'+node.id+'">\
+								<td>'+node.content+'</td>\
+								<td><span class="fa fa-close btn-swing"></span></td>\
+								</tr>';
+								}
+							}
+							$('#tianchongsetter').html(html);
 						}
 					}
 				}
@@ -689,34 +716,34 @@ function NetServer() {
 		}
 		//设置报周期及频率
 	this.setReportTimer = function(param) {
-		var address = this.servertable.base + '/' + this.servertable.setReportTimer;
-		var data = {
-			autosend: param.autosend,
-			sendfrequency: param.sendfrequency,
-			sendday: param.sendday,
-			sendhour: param.sendhour,
-			sendmine:param.sendmine,
-		};
-		var success = function(obj) {
-			if(obj.state == 'success'){
-				if(obj.msg) {
-					window.msg.show('设置成功!天啦噜!');
+			var address = this.servertable.base + '/' + this.servertable.setReportTimer;
+			var data = {
+				autosend: param.autosend,
+				sendfrequency: param.sendfrequency,
+				sendday: param.sendday,
+				sendhour: param.sendhour,
+				sendmine: param.sendmine,
+			};
+			var success = function(obj) {
+				if(obj.state == 'success') {
+					if(obj.msg) {
+						window.msg.show('设置成功!天啦噜!');
+					}
 				}
 			}
-		}
-		var warn = function(obj) {
+			var warn = function(obj) {
 
+			}
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
-		ajaxPackage(address, "Post", data, "json", false, success, warn);
-	}
-			//增加自动回复
+		//增加自动回复
 	this.addAutoTask = function(param) {
 		var address = this.servertable.base + '/' + this.servertable.addAutoTask;
 		var data = {
-		content:param.content,
+			content: param.content,
 		};
 		var success = function(obj) {
-			if(obj.state == 'success'){
+			if(obj.state == 'success') {
 				if(obj.msg) {
 					window.msg.show('添加成功');
 				}
@@ -730,7 +757,7 @@ function NetServer() {
 }
 
 //弹窗消息类
-function Message(){
+function Message() {
 	//提示消息
 	this.show = function(str) {
 		alert(str);
@@ -738,18 +765,32 @@ function Message(){
 }
 
 //设置部分
-$(function(){
-	$('input[name=sendtime]').change(function(){
-		if($(this).attr('data-time')=='day'){
+$(function() {
+	$('input[name=sendtime]').change(function() {
+		if($(this).attr('data-time') == 'day') {
 			$('.atuo-day').show();
 			$('.atuo-week').hide();
 		}
-		if($(this).attr('data-time')=='week'){
+		if($(this).attr('data-time') == 'week') {
 			$('.atuo-day').hide();
 			$('.atuo-week').show();
 		}
 	});
-	
+
 	//填充设置页面信息
 	window.NS.getSetInfo();
+	//綁定退出按鈕
+	$('#btn-layout').click(function(){
+		window.NS.Layer();
+	});
+	//綁定修改密碼
+	$("#btn-editpass").click(function(){
+		var oldpass=$('#input-oldpass').val();
+		var newpass=$('#input-newpass').val();
+		window.NS.editpass({
+				'oldpass': oldpass,
+				'pass': newpass,
+		});
+	});
+	//設置郵箱
 })

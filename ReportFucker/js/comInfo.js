@@ -96,7 +96,7 @@
  		reciveaddress:'test23@qq.com',
  		useremail:'1456@qq.com',
  		autosend:'true',//false  自动发送是否开启
- 		sendfrequency:'day',//week  //month  //year  发送频率
+ 		sendfrequency:'day',//day  //week    发送频率
  		sendday:1,//1-7
  		sendhour:0,//0-23
  		sendmine:0,//0-59

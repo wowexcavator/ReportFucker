@@ -4,13 +4,12 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>周报fucker</title>
-		<script src="jquery.min.js"></script>
-		<script src="base.js"></script>
-		<script src="homepage.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/base.js"></script>
+		<script src="js/homepage.js"></script>
 		<link rel="stylesheet" href="css/font-awesome.min.css">
-		<link rel="stylesheet" href="animate.min.css">
-	</head>
-	<link rel="stylesheet" href="homepage.css">
+		<link rel="stylesheet" href="css/animate.min.css">
+	<link rel="stylesheet" href="css/homepage.css">
 	</head>
 
 	<body>
@@ -84,9 +83,9 @@
 				<div class="account" style="width: 50%;border-right: 1px solid darkgrey;float: left;">
 					<p class="set-title">账户</p>
 					<div class="accountinfo">
-						<img class="btn-pulse" src="123.jpg" style="margin-left:40px;float:left;width: 90px;height: 90px;border-radius: 10px;">
+						<img class="btn-pulse" src="img/123.jpg" style="margin-left:40px;float:left;width: 90px;height: 90px;border-radius: 10px;">
 						<div style="float: left;margin-top: 10px;margin-left: 20px;max-width: 100px;overflow: hidden;" id='st-username'>国际熊</div>
-						<div class="btn-swing " style="
+						<div class="btn-swing " id='btn-layout'  style="
             float: right;
             margin-right: 17px;
             margin-top: 10px;
@@ -108,7 +107,7 @@
             margin-left: 21px;
             margin-top: 16px;
             ">
-						<div class="btn-swing " style="
+						<div class="btn-swing " id='btn-editpass' style="
             cursor: pointer;
             color: #0f6dc5;
             font-size: 20px;
@@ -163,20 +162,20 @@
 					<p class="set-title">报告自动发送</p>
 					<div class="autosend">
 						<ul>
-							<li><input type="radio" name="sendsockt">:启动</li>
-							<li><input type="radio" name="sendsockt" checked="checked">:关闭</li>
+							<li><input type="radio" id='radio-autosend'  name="sendsockt">:启动</li>
+							<li><input type="radio" id='radio-closesend' name="sendsockt" checked="checked">:关闭</li>
 						</ul>
 					</div>
 					<p class="set-title">发送时间</p>
 					<div class="auto-time">
 						<ul>
-							<li><input type="radio" name="sendtime" data-time='day'>:每天</li>
-							<li><input type="radio" name="sendtime"  data-time='week' checked="checked">:每周</li>
+							<li><input type="radio" name="sendtime" id='radio-day' data-time='day'>:每天</li>
+							<li><input type="radio" name="sendtime" id='radio-week'   data-time='week' checked="checked">:每周</li>
 						</ul>
 						<div class='atuo-day'>
 							<ul>
 								<li>小时:
-									<select>
+									<select class='select-hour'>
 										<option>0</option>
 										<option>1</option>
 										<option>2</option>
@@ -204,7 +203,7 @@
 									</select>
 								</li>
 								<li>分钟:
-									<select>
+									<select class='select-mine'>
 										<option>0</option>
 										<option>1</option>
 										<option>2</option>
@@ -273,7 +272,7 @@
 						<div class='atuo-week'>
 							<ul>
 								<li>日期:
-									<select>
+									<select id='select-day'>
 										<option>1</option>
 										<option>2</option>
 										<option>3</option>
@@ -284,7 +283,7 @@
 									</select>
 								</li>
 								<li>小时:
-									<select>
+									<select class='select-hour'>
 										<option>1</option>
 										<option>2</option>
 										<option>3</option>
@@ -312,7 +311,7 @@
 									</select>
 								</li>
 								<li>分钟:
-									<select>
+									<select class='select-mine'>
 										<option>0</option>
 										<option>1</option>
 										<option>2</option>
@@ -383,7 +382,7 @@
 					<div class="auto-tc">
 						<input type="text"><div class="btn btn-swing  sebtnw"><span class="fa fa-plus sebtn "></span>添加</div>
 						<div class="rr">
-						<table border="1" class="auto-table">
+						<table border="1" class="auto-table" id='tianchongsetter'>
 							<tr>
 								<td>今天什么都没有做！</td>
 								<td><span class="fa fa-close btn-swing"></span></td>
@@ -424,8 +423,7 @@
 								<td>今天什么都没有做！</td>
 								<td><span class="fa fa-close btn-swing"></span></td>
 							</tr>
-								
-							
+
 						</table>
 						</div>
 					</div>
