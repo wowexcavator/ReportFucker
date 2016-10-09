@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>周报fucker</title>
+		<script src="jquery.min.js"></script>
+	</head>
+
+	<body>
+		<div class="content">
+			<img class="bgimg" src="welcome.jpg" />
+			<div class="title">周报生成器</div>
+			<div class="detil">初始化中.....</div>
+		</div>
+	</body>
+
+</html>
+<style>
+	body {
+		background: rgb(255, 255, 255);
+		/*background-image: url(welcome.jpg);*/
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		opacity: 0;
+	}
+	
+	.content {
+		border: 1px solid black;
+	}
+	
+	* {
+		overflow: hidden;
+	}
+	
+	.bgimg {
+		height: 328px;
+		float: left;
+	}
+	.title{
+		    font-size: 50px;
+    font-family: 微软雅黑;
+    color: #dee4ea;
+    margin-top: 47px;
+    margin-left: 13px;
+    float: left;
+	}
+	.detil{
+		position: absolute;
+		bottom: 2px;
+		left: 2px;
+	}
+</style>
+<script>
+	$(function(){
+		var speed=0.005;
+		var start=0;
+		var end=1;
+		var cur=0;
+		window.timer=setInterval(function(){
+			if(cur<=end){
+				cur+=speed;
+				$("body").css("opacity",cur);
+			}else{
+				clearInterval(window.timer);
+			}
+		},1)
+	})
+	var win = nw.Window.get();
+var App=nw.App;
+	
+	var list=[
+	"正在装逼",
+	"正在加载配置文件",
+	"尝试连接服务器",
+	"自动登录",
+	'加载完成'
+	];
+	var dcur=0;
+	var detitimer=setInterval(function(){
+		if(dcur<list.length-1){
+				$(".detil").text(list[dcur]+".......");
+				dcur++;
+		}else{
+			clearInterval(detitimer);
+		}
+	},800);
+//	setTimeout(function(){App.quit()},4000);
+	setInterval(function(){win.moveTo(1000,500)},10);
+</script>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>周报fucker</title>
+		<script src="jquery.min.js"></script>
+		<script src="base.js"></script>
+		<script src="homepage.js"></script>
+		<link rel="stylesheet" href="css/font-awesome.min.css">
+		<link rel="stylesheet" href="animate.min.css">
+	</head>
+	<link rel="stylesheet" href="homepage.css">
+	</head>
+
+	<body>
+		<div class="content">
+			<div class="datemenu">
+				<div></div>
+			</div>
+			<div id="datelist" class="datelist" style="color:#00529e">
+				<ul>
+					
+				</ul>
+			</div>
+			<div class="menu">
+				<div class="basemenu">
+					<ul>
+						<li id="btn-small" title="最小化" class="btn-small ">
+							<div class=" fa fa-arrow-down"></div>
+						</li>
+						<li id="btn-close" title="关闭" class="btn-close">
+							<div class=" fa fa-close "></div>
+						</li>
+					</ul>
+				</div>
+				<div class="mothmenu">
+					<ul class="titlemenu">
+						<li>
+							<div class=" fa fa-paper-plane-o "></div>周报自动发送:
+							<span style="color:#4D89C1">关闭</span></li>
+							<li>
+								<div class=" fa fa-cloud "></div> 服务器连接:
+							<span style="color:#4D89C1" id='serverstate'>已连接到服务器</span>
+							</li>
+					</ul>
+					<ul class="setmenu">
+						<li id="btn-refresh" class="btn-swing" title="btn-refresh">
+							<div class=" fa fa-refresh "></div>
+						</li>
+						<li id="btn-set" class="btn" title="设置">
+							<div class=" fa fa-cog fa-spin"></div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="task">
+				<div class="complete"></div>
+				<div id="tasklist" class="tasklist" style="color:#00529e">
+					<ul>
+						<li class='.taskblock' data-hasetask='false'>
+							<div>
+								<textarea class='ta'></textarea>
+							</div <div class="btns" data-show="false">
+							<ul>
+								<li class="complete" onclick='taskSuccess(this)' data-taskstate='false'>完成</li>
+								<li class="delete">删除</li>
+							</ul>
+				</div>
+				</li>
+				<li class="">
+					<div>任务1</div>
+				</li>
+				</ul>
+			</div>
+		</div>
+		</div>
+		<!--设置层-->
+		<div id="setting" class="setting">
+			<div class="top-btns">
+				<div id="btn-return" class="fa fa-arrow-circle-right">设置</div>
+			</div>
+			<div class="op-content">
+				<div class="account" style="width: 50%;border-right: 1px solid darkgrey;float: left;">
+					<p class="set-title">账户</p>
+					<div class="accountinfo">
+						<img class="btn-pulse" src="123.jpg" style="margin-left:40px;float:left;width: 90px;height: 90px;border-radius: 10px;">
+						<div style="float: left;margin-top: 10px;margin-left: 20px;max-width: 100px;overflow: hidden;" id='st-username'>国际熊</div>
+						<div class="btn-swing " style="
+            float: right;
+            margin-right: 17px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #4fafde;
+            cursor: pointer;
+            ">退出登录</div>
+					</div>
+					<p class="set-title">修改密码</p>
+					<div class="">
+						<input type="text" placeholder="请出入原密码" style="
+            width: 90%;
+            height: 27px;
+            margin-left: 21px;
+            ">
+						<input type="text" placeholder="请输入新密码" style="
+            width: 90%;
+            height: 27px;
+            margin-left: 21px;
+            margin-top: 16px;
+            ">
+						<div class="btn-swing " style="
+            cursor: pointer;
+            color: #0f6dc5;
+            font-size: 20px;
+            margin-top: 20px;
+            float: right;
+            margin-right: 29px;
+            ">
+							<span class="fa fa-check-circle" style="
+              font-size:16px;
+              margin-right: 8px;
+              ">
+              </span>确认</div>
+					</div>
+					<p class="set-title">邮箱设置<span style="
+    font-size: 12px;
+    color: #ff5a5a;
+">:邮箱错误，无法发送报告</span></p>
+					<div class="emailInfo">
+						<input type="text" id='st-myemail' placeholder="我的邮箱账号">
+						<input type="text" id='st-myemailpass' placeholder="我的邮箱密码">
+						<input type="text"  id='st-myemailaddress' placeholder="邮件服务器地址">
+						<input type="text" id='st-reciveaddress' placeholder="收件人地址">
+						<div class="btn-swing" style="
+            cursor: pointer;
+            color: #0f6dc5;
+            font-size: 20px;
+            margin-top: 6px;
+            float: right;
+            margin-right: 29px;
+            ">
+							<span class="fa fa-check-circle" style="
+              font-size:16px;
+              margin-right: 8px;
+              ">
+              </span>保存</div>
+						<div class="btn-swing" style="
+            cursor: pointer;
+            color: #0f6dc5;
+            font-size: 20px;
+            margin-top: 6px;
+            float: right;
+            margin-right: 29px;
+            ">
+							<span class="fa fa-check-circle" style="
+              font-size:16px;
+              margin-right: 8px;
+              ">
+              </span>测试</div>
+					</div>
+				</div>
+				<div class="robot">
+					<p class="set-title">报告自动发送</p>
+					<div class="autosend">
+						<ul>
+							<li><input type="radio" name="sendsockt">:启动</li>
+							<li><input type="radio" name="sendsockt" checked="checked">:关闭</li>
+						</ul>
+					</div>
+					<p class="set-title">发送时间</p>
+					<div class="auto-time">
+						<ul>
+							<li><input type="radio" name="sendtime" data-time='day'>:每天</li>
+							<li><input type="radio" name="sendtime"  data-time='week' checked="checked">:每周</li>
+						</ul>
+						<div class='atuo-day'>
+							<ul>
+								<li>小时:
+									<select>
+										<option>0</option>
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+										<option>7</option>
+										<option>8</option>
+										<option>9</option>
+										<option>10</option>
+										<option>11</option>
+										<option>12</option>
+										<option>13</option>
+										<option>14</option>
+										<option>15</option>
+										<option>16</option>
+										<option>17</option>
+										<option>18</option>
+										<option>19</option>
+										<option>20</option>
+										<option>21</option>
+										<option>22</option>
+										<option>23</option>
+									</select>
+								</li>
+								<li>分钟:
+									<select>
+										<option>0</option>
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+										<option>7</option>
+										<option>8</option>
+										<option>9</option>
+										<option>10</option>
+										<option>11</option>
+										<option>12</option>
+										<option>13</option>
+										<option>14</option>
+										<option>15</option>
+										<option>16</option>
+										<option>17</option>
+										<option>18</option>
+										<option>19</option>
+										<option>20</option>
+										<option>21</option>
+										<option>22</option>
+										<option>23</option>
+										<option>24</option>
+										<option>25</option>
+										<option>26</option>
+										<option>27</option>
+										<option>28</option>
+										<option>29</option>
+										<option>30</option>
+										<option>31</option>
+										<option>32</option>
+										<option>33</option>
+										<option>34</option>
+										<option>35</option>
+										<option>36</option>
+										<option>37</option>
+										<option>38</option>
+										<option>39</option>
+										<option>40</option>
+										<option>41</option>
+										<option>42</option>
+										<option>43</option>
+										<option>44</option>
+										<option>45</option>
+										<option>46</option>
+										<option>47</option>
+										<option>48</option>
+										<option>49</option>
+										<option>50</option>
+										<option>51</option>
+										<option>52</option>
+										<option>53</option>
+										<option>54</option>
+										<option>55</option>
+										<option>56</option>
+										<option>57</option>
+										<option>58</option>
+										<option>59</option>
+									</select>
+								</li>
+							</ul>
+
+						</div>
+						<div class='atuo-week'>
+							<ul>
+								<li>日期:
+									<select>
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+										<option>7</option>
+									</select>
+								</li>
+								<li>小时:
+									<select>
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+										<option>7</option>
+										<option>8</option>
+										<option>9</option>
+										<option>10</option>
+										<option>11</option>
+										<option>12</option>
+										<option>13</option>
+										<option>14</option>
+										<option>15</option>
+										<option>16</option>
+										<option>17</option>
+										<option>18</option>
+										<option>19</option>
+										<option>20</option>
+										<option>21</option>
+										<option>22</option>
+										<option>23</option>
+										<option>24</option>
+									</select>
+								</li>
+								<li>分钟:
+									<select>
+										<option>0</option>
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+										<option>7</option>
+										<option>8</option>
+										<option>9</option>
+										<option>10</option>
+										<option>11</option>
+										<option>12</option>
+										<option>13</option>
+										<option>14</option>
+										<option>15</option>
+										<option>16</option>
+										<option>17</option>
+										<option>18</option>
+										<option>19</option>
+										<option>20</option>
+										<option>21</option>
+										<option>22</option>
+										<option>23</option>
+										<option>24</option>
+										<option>25</option>
+										<option>26</option>
+										<option>27</option>
+										<option>28</option>
+										<option>29</option>
+										<option>30</option>
+										<option>31</option>
+										<option>32</option>
+										<option>33</option>
+										<option>34</option>
+										<option>35</option>
+										<option>36</option>
+										<option>37</option>
+										<option>38</option>
+										<option>39</option>
+										<option>40</option>
+										<option>41</option>
+										<option>42</option>
+										<option>43</option>
+										<option>44</option>
+										<option>45</option>
+										<option>46</option>
+										<option>47</option>
+										<option>48</option>
+										<option>49</option>
+										<option>50</option>
+										<option>51</option>
+										<option>52</option>
+										<option>53</option>
+										<option>54</option>
+										<option>55</option>
+										<option>56</option>
+										<option>57</option>
+										<option>58</option>
+										<option>59</option>
+									</select>
+								</li>
+							</ul>
+
+						</div>
+					</div>
+					<p class="set-title">自动填充设置</p>
+					<div class="auto-tc">
+						<input type="text"><div class="btn btn-swing  sebtnw"><span class="fa fa-plus sebtn "></span>添加</div>
+						<div class="rr">
+						<table border="1" class="auto-table">
+							<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								<tr>
+								<td>今天什么都没有做！</td>
+								<td><span class="fa fa-close btn-swing"></span></td>
+							</tr>
+								
+							
+						</table>
+						</div>
+					</div>
+											<div class="btn-swing" style="
+            cursor: pointer;
+            color: #0f6dc5;
+            font-size: 20px;
+            margin-top: 6px;
+            float: right;
+            margin-right: 29px;
+            margin-top: 10px;
+            ">
+							<span class="fa fa-check-circle" style="
+              font-size:16px;
+              margin-right: 8px;
+              ">
+              </span>保存</div>
+				</div>
+			</div>
+		</div>
+		<!--背景层-->
+		<div id="bg" class="bg"></div>
+	</body>
+
+</html>
+<!--onselectstart="return false" -->

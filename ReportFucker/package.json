@@ -1,0 +1,13 @@
+{
+	"name": "周报fucker",
+	"main": "homepage.html",
+	"window": {
+		"toolbar": false, //这个选项对于开发太重要了
+		"title": "NetEaseMusic",
+		"toolbar": true,
+		"frame": false,
+		"transparent":true,
+		"width":1100,
+		"height":650
+	}
+}
