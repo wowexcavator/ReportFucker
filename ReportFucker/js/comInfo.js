@@ -141,7 +141,7 @@
 setReportTimer
 //request
 {
-		autosend:'true',//false  自动发送是否开启
+		
  		sendfrequency:'day',//week  //month  //year  发送频率
  		sendday:1,//1-7
  		sendhour:0,//0-23
@@ -151,13 +151,75 @@ setReportTimer
 {
 	state:'success',
 }
-
+//设置自动发送开关
+//setAutoSend
+//request
+{
+	autosend:true,//false  自动发送是否开启
+}
+//response
+{
+	state:'success',
+}
 //增加自动回复
 //addAutoTask
 
 //requeset
 {
 	content:'45454'
+}
+//response
+{
+	state:'success',//false
+}
+//删除自动回复
+//deleteAutoTask
+
+//requeset
+{
+	id:'123213'
+}
+//response
+{
+	state:'success',//false
+}
+
+//增加任务
+//addTask
+
+//requeset
+{
+		date:'2016.12.12',
+ 		content:'今日发呆',
+ 		state:'undone',//complete
+ 		localid:'45564654654654',
+}
+//response
+{
+	state:'success',//false
+}
+//删除任务
+//deleteTask
+
+//requeset
+{
+	date:'2016.12.12',
+	localid:'45564654654654',
+}
+//response
+{
+	state:'success',//false
+}
+
+//更新任务
+//updateTask
+
+//requeset
+{
+	date:'2016.12.12',
+	localid:'45564654654654',
+	content:'',
+	state:'undone',//complete
 }
 //response
 {

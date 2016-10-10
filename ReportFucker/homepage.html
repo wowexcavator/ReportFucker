@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html>
-
 	<head>
 		<meta charset="UTF-8">
 		<title>周报fucker</title>
 		<script src="js/jquery.min.js"></script>
 		<script src="js/base.js"></script>
 		<script src="js/homepage.js"></script>
-		<link rel="stylesheet" href="css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/font-awesome.css">
 		<link rel="stylesheet" href="css/animate.min.css">
-	<link rel="stylesheet" href="css/homepage.css">
+		<link rel="stylesheet" href="css/homepage.css">
 	</head>
-
 	<body>
 		<div class="content">
 			<div class="datemenu">
@@ -130,7 +128,7 @@
 						<input type="text" id='st-myemailpass' placeholder="我的邮箱密码">
 						<input type="text"  id='st-myemailaddress' placeholder="邮件服务器地址">
 						<input type="text" id='st-reciveaddress' placeholder="收件人地址">
-						<div class="btn-swing" style="
+						<div id='btn-setemail' class="btn-swing" style="
             cursor: pointer;
             color: #0f6dc5;
             font-size: 20px;
@@ -143,7 +141,7 @@
               margin-right: 8px;
               ">
               </span>保存</div>
-						<div class="btn-swing" style="
+						<div class="btn-swing" id='btn-testemail' style="
             cursor: pointer;
             color: #0f6dc5;
             font-size: 20px;
@@ -175,7 +173,7 @@
 						<div class='atuo-day'>
 							<ul>
 								<li>小时:
-									<select class='select-hour'>
+									<select class='select-hour' id='sl-day-h'>
 										<option>0</option>
 										<option>1</option>
 										<option>2</option>
@@ -203,7 +201,7 @@
 									</select>
 								</li>
 								<li>分钟:
-									<select class='select-mine'>
+									<select class='select-mine' id='sl-day-m'>
 										<option>0</option>
 										<option>1</option>
 										<option>2</option>
@@ -272,7 +270,7 @@
 						<div class='atuo-week'>
 							<ul>
 								<li>日期:
-									<select id='select-day'>
+									<select id='select-day' id='sl-week-d'>
 										<option>1</option>
 										<option>2</option>
 										<option>3</option>
@@ -283,7 +281,7 @@
 									</select>
 								</li>
 								<li>小时:
-									<select class='select-hour'>
+									<select class='select-hour' id='sl-week-h'>
 										<option>1</option>
 										<option>2</option>
 										<option>3</option>
@@ -311,7 +309,7 @@
 									</select>
 								</li>
 								<li>分钟:
-									<select class='select-mine'>
+									<select class='select-mine' id='sl-week-m'>
 										<option>0</option>
 										<option>1</option>
 										<option>2</option>
@@ -377,10 +375,24 @@
 							</ul>
 
 						</div>
+					<div class="btn-swing" id='btn-dateset' style="
+            cursor: pointer;
+            color: #0f6dc5;
+            font-size: 20px;
+            margin-top: 6px;
+            float: right;
+            margin-right: 29px;
+            margin-top: 10px;
+            ">
+							<span class="fa fa-check-circle" style="
+              font-size:16px;
+              margin-right: 8px;
+              ">
+              </span>保存</div>
 					</div>
 					<p class="set-title">自动填充设置</p>
 					<div class="auto-tc">
-						<input type="text"><div class="btn btn-swing  sebtnw"><span class="fa fa-plus sebtn "></span>添加</div>
+						<input id='autotask' type="text"><div id='btn-addAutoTask' class="btn btn-swing  sebtnw"><span class="fa fa-plus sebtn "></span>添加</div>
 						<div class="rr">
 						<table border="1" class="auto-table" id='tianchongsetter'>
 							<tr>
@@ -427,20 +439,7 @@
 						</table>
 						</div>
 					</div>
-											<div class="btn-swing" style="
-            cursor: pointer;
-            color: #0f6dc5;
-            font-size: 20px;
-            margin-top: 6px;
-            float: right;
-            margin-right: 29px;
-            margin-top: 10px;
-            ">
-							<span class="fa fa-check-circle" style="
-              font-size:16px;
-              margin-right: 8px;
-              ">
-              </span>保存</div>
+
 				</div>
 			</div>
 		</div>

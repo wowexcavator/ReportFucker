@@ -7,10 +7,10 @@ function ajaxPackage(localUrl, type, data, dataType, isCache, callback,ecallback
 		dataType: dataType,
 		cache: isCache,
 		success: function(obj) {
-			callback();
+			callback(obj);
 		},
 		error: function(obj) {
-			ecallback();
+			ecallback(obj);
 		},
 	})
 }

@@ -18,6 +18,8 @@ window.TM = new TaskManage();
 window.TL = new TaskList();
 //服务器状态通信
 window.NS = new NetServer();
+//网络链接状态
+window.serverState = false;
 $(function() { //设置窗的弹出动画
 	$("#btn-set").click(function() {
 		$("#setting").show();
@@ -335,10 +337,18 @@ function localDB() {
 		}
 		//读取某一天的数据
 	this.getDataByDate = function(date) {
-			if(this.Data[date] != null) {
-				return this.Data[date];
+			if(window.serverState) {//如果网络状况是联通的
+				var tasklist=window.NS.getListByDate({
+					'date':date,
+				});
+				
 			} else {
-				return null;
+				if(this.Data[date] != null) {
+					return this.Data[date];
+				} else {
+					return null;
+				}
+
 			}
 		}
 		//跟新某一天的数据
@@ -426,15 +436,35 @@ function TaskManage() {
 				obj.id = null;
 				obj.isTb = false;
 			}
-			window.DB.setDateByDate(this.curdate, obj)
+			window.DB.setDateByDate(this.curdate, obj);
+			window.LocalTaskList.push({
+				com: 'createTask',
+				param: obj,
+			});
 		}
 		//删除任务
 	this.deleteTask = function(localid) {
 			window.DB.deleteTask(this.curdate, localid);
+			window.LocalTaskList.push({
+				com: 'deleteTask',
+				param: {
+					date: this.curdate,
+					'localid': localid,
+				},
+			});
 		}
 		//更新任务
 	this.updateTask = function(obj) {
 			window.DB.updateTask(this.curdate, obj);
+			window.LocalTaskList.push({
+				com: 'updateTask',
+				param: {
+					date: this.curdate,
+					'localid': obj.localid,
+					content: obj.content,
+					state: obj.state,
+				},
+			});
 		}
 		//更改指示日期
 	this.setDate = function(date) {
@@ -502,26 +532,51 @@ function TaskList() {
 	}
 }
 //检测服务器连接状态
+function checkNET(c) {
+	var callback = function() {
+		$('#serverstate').text('已连接到服务器');
+		$('#serverstate').css('color', '#4D89C1');
+		window.serverState = true;
+		console.log('链接正常');
+	}
+	var ecallback = function() {
+		$('#serverstate').text('与服务器失去联系');
+		$('#serverstate').css('color', '#ff0000');
+		window.serverState = false;
+	}
+	if(c != null) {
+		$.ajax({
+			type: type,
+			url: "http://www.shellcandy.cn/online.php?time=" + getLocalId(),
+			data: {},
+			dataType: "text",
+			cache: false,
+			async: false,
+			success: function(obj) {
+				callback(obj);
+				window.msuo = true; //这个锁怎么都得放开了
+			},
+			error: function(obj) {
+				ecallback(obj);
+				window.msuo = true;
+			},
+		})
+	} else {
+		ajaxPackage("http://www.shellcandy.cn/online.php?time=" + getLocalId(), "Post", {}, "text", false, callback, ecallback);
+	}
+
+}
 $(function() {
+		checkNET();
 		window.serverStateTimer = setInterval(function() {
-			var callback = function() {
-				$('#serverstate').text('已连接到服务器');
-				$('#serverstate').css('color', '#4D89C1');
-				window.serverState = true;
-			}
-			var ecallback = function() {
-				$('#serverstate').text('与服务器失去联系');
-				$('#serverstate').css('color', '#ff0000');
-				window.serverState = false;
-			}
-			ajaxPackage("serverState", "Post", {}, "json", false, callback, ecallback);
+			checkNET();
 		}, 60000);
 	})
 	//服务器管理类
 function NetServer() {
 	//服务器地址列表
 	this.servertable = {
-		base: 'www.shellcandy.cn',
+		base: 'http://www.shellcandy.cn',
 		login: 'login',
 		regist: 'regist',
 		editpass: 'editpass',
@@ -532,6 +587,11 @@ function NetServer() {
 		testEmail: 'testEmail',
 		setReportTimer: 'setReportTimer',
 		addAutoTask: 'addAutoTask',
+		setAutoSend: 'setAutoSend',
+		deleteAutoTask: 'deleteAutoTask',
+		addTask: 'addTask',
+		deleteTask: 'deleteTask',
+		updateTask: 'updateTask',
 	};
 	//登录
 	this.login = function(param, success, warn) {
@@ -658,10 +718,10 @@ function NetServer() {
 							if(obj.data.tclist.length > 0) {
 								var html = '';
 								for(var i = 0; i < obj.data.tclist.length; i++) {
-								var node=obj.data.tclist[i];
-								html += '<tr data-id="'+node.id+'">\
-								<td>'+node.content+'</td>\
-								<td><span class="fa fa-close btn-swing"></span></td>\
+									var node = obj.data.tclist[i];
+									html += '<tr data-id="' + node.id + '">\
+								<td>' + node.content + '</td>\
+								<td><span onclick="deleteAutoTask(this)" class="fa fa-close btn-swing"></span></td>\
 								</tr>';
 								}
 							}
@@ -718,7 +778,6 @@ function NetServer() {
 	this.setReportTimer = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.setReportTimer;
 			var data = {
-				autosend: param.autosend,
 				sendfrequency: param.sendfrequency,
 				sendday: param.sendday,
 				sendhour: param.sendhour,
@@ -736,24 +795,92 @@ function NetServer() {
 			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
-		//增加自动回复
-	this.addAutoTask = function(param) {
-		var address = this.servertable.base + '/' + this.servertable.addAutoTask;
-		var data = {
-			content: param.content,
-		};
-		var success = function(obj) {
-			if(obj.state == 'success') {
-				if(obj.msg) {
-					window.msg.show('添加成功');
+		//设置报表自动发送开关
+	this.setAutoSend = function(param) {
+			var address = this.servertable.base + '/' + this.servertable.setAutoSend;
+			var data = {
+				autosend: param.autosend,
+			};
+			var success = function(obj) {
+				if(obj.state == 'success') {
+					if(obj.msg) {
+						window.msg.show('设置成功');
+					}
 				}
 			}
-		}
-		var warn = function(obj) {
+			var warn = function(obj) {
 
+			}
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
+		//增加自动回复
+	this.addAutoTask = function(param) {
+			var address = this.servertable.base + '/' + this.servertable.addAutoTask;
+			var data = {
+				content: param.content,
+			};
+			var success = function(obj) {
+				if(obj.state == 'success') {
+					if(obj.msg) {
+						window.msg.show('添加成功');
+					}
+				}
+			}
+			var warn = function(obj) {
+
+			}
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
+		}
+		//删除自动增加任务
+	this.deleteAutoTask = function(param) {
+			var address = this.servertable.base + '/' + this.servertable.deleteAutoTask;
+			var data = {
+				id: param.id,
+			};
+			var success = function(obj) {
+				if(obj.state == 'success') {
+					if(obj.msg) {
+						window.msg.show('删除成功');
+					}
+				}
+			}
+			var warn = function(obj) {
+
+			}
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
+		}
+		//增加任务
+	this.addTask = function(param, success, warn) {
+			var address = this.servertable.base + '/' + this.servertable.addTask;
+			var data = {
+				date: param.date,
+				content: param.content,
+				state: param.state,
+				localid: param.localid,
+			};
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
+		}
+		//删除任务
+	this.deleteTask = function(param, success, warn) {
+			var address = this.servertable.base + '/' + this.servertable.deleteTask;
+			var data = {
+				date: param.date,
+				localid: param.localid,
+			};
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
+		}
+		//更新任务
+	this.updateTask = function(param, success, warn) {
+		var address = this.servertable.base + '/' + this.servertable.updateTask;
+		var data = {
+			date: param.date,
+			content: param.content,
+			state: param.state,
+			localid: param.localid,
+		};
 		ajaxPackage(address, "Post", data, "json", false, success, warn);
 	}
+
 }
 
 //弹窗消息类
@@ -766,31 +893,156 @@ function Message() {
 
 //设置部分
 $(function() {
-	$('input[name=sendtime]').change(function() {
-		if($(this).attr('data-time') == 'day') {
-			$('.atuo-day').show();
-			$('.atuo-week').hide();
-		}
-		if($(this).attr('data-time') == 'week') {
-			$('.atuo-day').hide();
-			$('.atuo-week').show();
-		}
-	});
+		$('input[name=sendtime]').change(function() {
+			if($(this).attr('data-time') == 'day') {
+				$('.atuo-day').show();
+				$('.atuo-week').hide();
+			}
+			if($(this).attr('data-time') == 'week') {
+				$('.atuo-day').hide();
+				$('.atuo-week').show();
+			}
+		});
 
-	//填充设置页面信息
-	window.NS.getSetInfo();
-	//綁定退出按鈕
-	$('#btn-layout').click(function(){
-		window.NS.Layer();
-	});
-	//綁定修改密碼
-	$("#btn-editpass").click(function(){
-		var oldpass=$('#input-oldpass').val();
-		var newpass=$('#input-newpass').val();
-		window.NS.editpass({
+		//填充设置页面信息
+		window.NS.getSetInfo();
+		//綁定退出按鈕
+		$('#btn-layout').click(function() {
+			window.NS.Layer();
+		});
+		//綁定修改密碼
+		$("#btn-editpass").click(function() {
+			var oldpass = $('#input-oldpass').val();
+			var newpass = $('#input-newpass').val();
+			window.NS.editpass({
 				'oldpass': oldpass,
 				'pass': newpass,
+			});
 		});
+		//設置郵箱
+		$('#btn-setemail').click(function() {
+			window.NS.setEmailInfo({
+				userpass: $('#st-myemailpass').val(),
+				emailserver: $('#st-myemailaddress').val(),
+				reciveaddress: $('#st-reciveaddress').val(),
+				useremail: $('#st-myemail').val(),
+			});
+		});
+		//测试邮箱
+		$('#btn-testemail').click(function() {
+			window.NS.testEmail();
+		});
+		//报告自动发送
+		$('input[name=sendsockt]').change(function() {
+			if($(this).attr('id') == 'radio-autosend') {
+				window.NS.setAutoSend({
+					autosend: true,
+				});
+			}
+			if($(this).attr('id') == 'radio-closesend') {
+				window.NS.setAutoSend({
+					autosend: false,
+				});
+			}
+		});
+		//设置发动时间
+		$('#btn-dateset').click(function() {
+			var sf = $('input[name=sendtime]:checked').attr('data-time');
+			var day, hour, mine;
+			if(sf == 'day') {
+				hour = $('#sl-day-h').val();
+				mine = $('#sl-day-m').val();
+				window.NS.setReportTimer({
+					sendfrequency: sf,
+					sendday: '',
+					sendhour: hour,
+					sendmine: mine,
+				});
+			}
+			if(sf == 'week') {
+				day = $('#sl-week-d').val();
+				hour = $('#sl-week-h').val();
+				mine = $('#sl-week-m').val();
+				window.NS.setReportTimer({
+					sendfrequency: sf,
+					sendday: day,
+					sendhour: hour,
+					sendmine: mine,
+				});
+			}
+
+		});
+		//添加自动填充设置
+		$('#btn-addAutoTask').click(function() {
+			var str = $('#autotask').val();
+			if(str != null && str.length > 0) {
+				window.NS.addAutoTask({
+					content: str,
+				});
+			} else {
+				window.msg.show('还没写东西呢!');
+			}
+		});
+	})
+	//删除自动填充设置
+function deleteAutoTask(mythis) {
+	window.NS.deleteAutoTask({
+		id: $(mythis).parents('tr').eq(0).attr('data-id')
 	});
-	//設置郵箱
+}
+
+//任务执行器
+$(function() {
+	window.msuo = true; //防止任务时序冲突的锁
+	window.TaskServerTimer = setInterval(function() {
+		if(window.msuo && window.serverState) {
+			window.msuo = false; //加锁
+			if(window.LocalTaskList.length > 0) {
+				var node = window.LocalTaskList.shift();
+				if(node.com == 'addTask') {
+					window.NS.createTask({
+						date: node.date,
+						content: node.content,
+						state: node.state,
+						localid: node.localid,
+					}, function(obj) {
+						window.msuo = true; //释放锁
+					}, function(obj) {
+						if(obj.statusText == "error") {
+							checkNET('tb'); //同步ajax
+						}
+						window.LocalTaskList.unshift(node); //一般情况都是在任务发送前网络就断了,这个时候任务执行失败,所以进行回退
+					});
+				}
+				if(node.com == 'deleteTask') {
+					window.NS.deleteTask({
+						date: node.date,
+						localid: node.localid,
+					}, function(obj) {
+						window.msuo = true; //释放锁
+					}, function(obj) {
+						if(obj.statusText == "error") {
+							checkNET('tb'); //同步ajax
+						}
+						window.LocalTaskList.unshift(node); //一般情况都是在任务发送前网络就断了,这个时候任务执行失败,所以进行回退
+					});
+				}
+				if(node.com == 'updateTask') {
+					window.NS.deleteTask({
+						date: node.date,
+						content: node.content,
+						state: node.state,
+						localid: node.localid,
+					}, function(obj) {
+						window.msuo = true; //释放锁
+					}, function(obj) {
+						if(obj.statusText == "error") {
+							checkNET('tb'); //同步ajax
+						}
+						window.LocalTaskList.unshift(node); //一般情况都是在任务发送前网络就断了,这个时候任务执行失败,所以进行回退
+					});
+				}
+			}
+		}
+	}, 100);
 })
