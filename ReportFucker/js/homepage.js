@@ -338,9 +338,40 @@ function localDB() {
 		//读取某一天的数据
 	this.getDataByDate = function(date) {
 			if(window.serverState) {//如果网络状况是联通的
-				var tasklist=window.NS.getListByDate({
+				window.NS.getListByDate({//此处只能异步的处理数据
 					'date':date,
+				},function(obj){
+					if(obj.state=='success'){
+						if(obj.data&&obj.data.length){
+							var date=obj.data[0].date;
+							var list=[];
+							for(var i=0;i<obj.data.length;i++){
+								var node=obj.data[i];
+								list.push({
+									date:node.date,
+									name:'',
+									id:'',
+									isTB:false,
+									content:node.content,
+									state:node.state,
+									localid:node.localid,
+									
+								});
+							}
+							this.Data[date]=list;//覆盖本地得缓存
+							//将内存中得状态缓存到文件
+							this.saveStorage(this.Data);
+							//重新加载页面任务列表
+							$("#tasklist ul").html(window.TL.getTaskListStrutsByDate(this.Data));
+						}
+					}
 				});
+				//异步得话没办法,先返回一个结构给
+				if(this.Data[date] != null) {
+					return this.Data[date];
+				} else {
+					return null;
+				}
 				
 			} else {
 				if(this.Data[date] != null) {
@@ -489,8 +520,13 @@ function getLocalId() {
 //任务列表对象
 function TaskList() {
 	//获取某一天的任务列表结构
-	this.getTaskListStrutsByDate = function() {
-		var tasklist = window.TM.getTaskListByDate(); //获取当前日期tasklist
+	this.getTaskListStrutsByDate = function(tlist) {
+		var tasklist;
+		if(tlist!=null){
+			tasklist=tlist;
+		}else{
+			 tasklist = window.TM.getTaskListByDate(); //获取当前日期tasklist
+		}
 		if(tasklist && tasklist.length > 0) {
 			var html = "";
 			for(var i = 0; i < tasklist.length; i++) {
