@@ -15,20 +15,29 @@ var sessionList=[];
  	//根据sessionid判断用户信息
  	var sessionid=request.cookies[key];
  	session.id=sessionid;
- 	session.cookie={
- 		id:sessionid,
- 		expire:request.cookies['expire']
- 	};
+ 	 	if(request.cookies['expires']!=null&&request.cookies['expires']!=''){
+ 	 		session.cookie={
+			 	id:sessionid,
+			 	expires:GMTtoS(request.cookies['expires'])
+			};
+
+ 	 	}else{
+ 	 		session.cookie={
+			 	id:sessionid,
+			 	expires:(new Date()).getTime()+145644
+			};
+ 	 	}
+
  	if(!sessionid){//不存在sessionid
  		request.session=generate();//生成 新的session
  		sessionList.push(request.session);
  	}else{//存在sessionid
  		//判断sessionid是否过期
- 		if(session.cookie.expire>(new Date()).getTime()){//没过期
- 				session.cookie.expire =sToGMT((new Date()).getTime() + EXPIRES);
+ 		if(session.cookie.expires>(new Date()).getTime()){//没过期
+ 				session.cookie.expires =(new Date()).getTime() + EXPIRES;
  				var obj=findsession(sessionid);
  				if(obj){
- 					obj.cookie.expires=session.cookie.expire;
+ 					obj.cookie.expires=session.cookie.expires;
  				}
  		}else{
  			var obj=findsession(sessionid);
@@ -49,8 +58,8 @@ var sessionList=[];
  	}
  		//替换头写入函数
  	var writeHead = response.writeHead;
- 		response.writeHead = function() {
-			response.setHeader('Set-Cookie','session_id='+request.session.cookie.id,'expires='+request.session.cookie.expire);
+ 		response.writeHead = function(){
+			response.setHeader('Set-Cookie','session_id='+request.session.cookie.id+';expires='+sToGMT(request.session.cookie.expires));
 			return writeHead.apply(this, arguments);
 		}
  		response.writeHead(200, {
@@ -118,7 +127,14 @@ function sToGMT(s){
 		return '';
 	}
 }
-
-setTimeout(function() {
-	process.exit();
-}, 30000);
+//gmt时间转毫秒值
+function GMTtoS(s){
+	try{
+		return (new Date(s)).getTime();
+	}catch(error){
+		return '';
+	}
+}
+//setTimeout(function() {
+//	process.exit();
+//}, 30000);

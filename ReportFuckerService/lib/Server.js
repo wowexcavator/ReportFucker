@@ -62,7 +62,6 @@ function generate() {
 		expires: (new Date()).getTime() + EXPIRES,
 		'session_id':session.id
 	};
-	//session[session.id] = session;
 	return session;
 }
 //解析cookie

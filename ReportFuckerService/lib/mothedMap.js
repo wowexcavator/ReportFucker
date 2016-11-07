@@ -2,6 +2,7 @@ function mothedMap(){
 	//登陸方法
 	this.f_login=function(request, response){
 		response.write('登陆时代放假啦空手道解放立刻集散地立刻反击');
+		request.session.state='login';
 	}
 	//注冊
 	this.f_regist=function(request, response){
