@@ -67,7 +67,16 @@ var sessionList=[];
 		});
  		//解析路径并传给路由
 	var path = url.parse(request.url).pathname.split('/').pop();
-	route.exec(path, request, response);
+	//监听post
+	var post='';
+	 req.on('data', function(chunk){    //通过req的data事件监听函数，每当接受到请求体的数据，就累加到post变量中
+        post += chunk;
+    });
+
+    req.on('end', function(){    //在end事件触发后，通过querystring.parse将post解析为真正的POST请求格式，然后向客户端返回。
+        post = querystring.parse(post);
+        route.exec(path, request, response,post);
+    });
 	response.end(function() {
 	
 	});

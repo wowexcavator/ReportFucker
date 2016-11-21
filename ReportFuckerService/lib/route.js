@@ -14,9 +14,9 @@ function route() {
 			'addAutoTask': mothed.f_addAutoTask,
 		}
 		//执行对应的方法
-	this.exec = function(path, request, response) {
+	this.exec = function(path, request, response,param) {
 		if(this.routetable[path] != null) {
-			this.routetable[path](request, response); //执行对应的方法
+			this.routetable[path](request, response,param); //执行对应的方法
 		} else {
 			response.write('{state:false,msg:"no mothed"}');
 		}
