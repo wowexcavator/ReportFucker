@@ -1,5 +1,6 @@
 var http=require('http');
 var url=require('url');
+var qs=require('querystring');
 var route=require('./route.js');
 //session過期時間
 var EXPIRES = 30*24*60*60*1000;
@@ -63,23 +64,21 @@ var sessionList=[];
 			return writeHead.apply(this, arguments);
 		}
  		response.writeHead(200, {
-			'Content-Type': 'text/plain'
+			'Content-Type': 'text/plain;charset=UTF-8'
 		});
  		//解析路径并传给路由
 	var path = url.parse(request.url).pathname.split('/').pop();
 	//监听post
 	var post='';
-	 req.on('data', function(chunk){    //通过req的data事件监听函数，每当接受到请求体的数据，就累加到post变量中
+	 request.on('data', function(chunk){    //通过req的data事件监听函数，每当接受到请求体的数据，就累加到post变量中
         post += chunk;
     });
 
-    req.on('end', function(){    //在end事件触发后，通过querystring.parse将post解析为真正的POST请求格式，然后向客户端返回。
-        post = querystring.parse(post);
+    request.on('end', function(){    //在end事件触发后，通过querystring.parse将post解析为真正的POST请求格式，然后向客户端返回。
+        post = qs.parse(post);
         route.exec(path, request, response,post);
     });
-	response.end(function() {
-	
-	});
+
  	
  }).listen(8888);
 //解析cookie
@@ -126,7 +125,7 @@ setInterval(function(){
 			}
 		}
 	}
-},5*60*1000);
+},1000);
 
 //毫秒值转gmt时间
 function sToGMT(s){

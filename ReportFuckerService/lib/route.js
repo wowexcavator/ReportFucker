@@ -12,6 +12,8 @@ function route() {
 			'testEmail': mothed.f_testEmail,
 			'setReportTimer': mothed.f_setReportTimer,
 			'addAutoTask': mothed.f_addAutoTask,
+			'addTask':mothed.f_addTask,
+			'deleteTask':mothed.f_deleteTask,
 		}
 		//执行对应的方法
 	this.exec = function(path, request, response,param) {
@@ -19,6 +21,7 @@ function route() {
 			this.routetable[path](request, response,param); //执行对应的方法
 		} else {
 			response.write('{state:false,msg:"no mothed"}');
+			response.end();
 		}
 	}
 

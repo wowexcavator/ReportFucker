@@ -1,9 +1,9 @@
 var mongoose=require("mongoose"),
-	DB_URL='mongodb://192.168.222.105:27017/reportfucker';
+	var DB_URL=require('./ServerConfig.js').DB_URL;
 	mongoose.connect(DB_URL);
 var Schema = mongoose.Schema;
 var userSchema=new Schema({
-    _id :  Schema.Types.ObjectId,
+    _id :  Schema.T ypes.ObjectId,
     name : String,
     pass : String,
     registemail:String,
@@ -17,21 +17,8 @@ var userSchema=new Schema({
     sendday : Number,
     sendhour : Number,
     sendmine : Number,
-    tclist : [ 
-        {
-            _id :Schema.Types.ObjectId,
-            content : String
-        }
-    ],
-    task : [ 
-        {
-        	_id :Schema.Types.ObjectId,
-            createtime : Date,
-            date : Date,
-            content : String,
-            state : String
-        }
-    ]
+    delete:Boolean,//是否删除
+   	permission:Boolean,//账户是否允许登录
 });
 var userModle=mongoose.model('user',userSchema,'user');
 module.exports = userModle;
