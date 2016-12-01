@@ -142,13 +142,11 @@ function mothedMap() {
 												var node = userlist[i];
 												if(node.key == param.key) {
 													userlist.splice(i, 1); //删除该项
-													return false;
-
 												}
 											}
 											request.session = null;
 											response.end();
-											return false;
+											return true;
 										}
 									}
 								});
@@ -242,7 +240,7 @@ function mothedMap() {
 		}
 		//获取设置信息
 	this.f_getSetInfo = function(request, response) {
-			userModel.findById(request.session.id, function(err, res) {
+			userModel.findById(request.session.userid, function(err, res) {
 				if(err) {
 					response.write('{"state":"false"}');
 					response.end();
@@ -258,7 +256,7 @@ function mothedMap() {
 						sendhour: res.sendhour,
 						sendmine: res.sendmine,
 					};
-					var objstr = Json.stringify(obj);
+					var objstr = JSON.stringify(obj);
 					response.write('{"state":"success","data":' + objstr + '}');
 					response.end();
 					return false;
@@ -351,6 +349,11 @@ function mothedMap() {
 		//增加自动填充任务
 	this.f_addAutoTask = function(request, response, param) {
 			if(param) {
+				if(param.content==null){
+					response.write('{"state":"false"}');
+					response.end();
+					return false;
+				}
 				var task = new tcTaskModel({
 					userid: request.session.userid,
 					content: param.content,
@@ -392,9 +395,8 @@ function mothedMap() {
 		//获取自动填充任务
 	this.f_getAutoTask = function(request, response, param) {
 			if(param) {
-				if(param.date) {
 					tcTaskModel.find({
-						'userid': request.session.id
+						'userid': request.session.userid
 					}, function(err, res) {
 						if(err) {
 							response.write('{"state":"false"}');
@@ -411,17 +413,13 @@ function mothedMap() {
 									});
 								}
 							}
-							var objstr = Json.stringify(list);
+							var objstr = JSON.stringify(list);
 							response.write('{"state":"success","data":' + objstr + '}');
 							response.end();
 							return false;
 						}
 					})
-				} else {
-					response.write('{"state":"false"}');
-					response.end();
-					return false;
-				}
+				
 			} else {
 				response.write('{"state":"false"}');
 				response.end();
@@ -455,15 +453,20 @@ function mothedMap() {
 		//增加任务
 	this.f_addTask = function(request, response, param) {
 			if(param) {
+				if(param.date==null||param.content==null){
+					response.write('{"state":"false"}');
+					response.end();
+					return false;
+				}
 				var task = new taskModel({
-					userid: request.sesssion.userid,
+					userid: request.session.userid,
 					createtime: new Date().getTime(),
 					date: param.date,
 					content: param.content,
 					state: 'undone',
 					delete: false,
 				});
-				task.save(function() {
+				task.save(function(err,res) {
 					if(err) {
 						response.write('{"state":"false"}');
 						response.end();

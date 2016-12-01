@@ -1,171 +1,358 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="UTF-8">
 		<title>test</title>
 		<script src="js/jquery.min.js"></script>
 	</head>
+
 	<body>
-		
+
 	</body>
+
 </html>
 <script>
-	function send(path,tdata,callback){
-		tdata.key=window.key;
+	function send(path, tdata, callback) {
+		tdata.key = window.key;
 		console.log(tdata);
-		
+
 		$.ajax({
-		type: 'post',
-		url: address+path,
-		data: tdata,
-		dataType: 'json',
-		success: callback,
-		error:function(a){
-			console.log(a);
-		}
-	});
+			type: 'post',
+			url: address + path,
+			data: tdata,
+			dataType: 'json',
+			success: callback,
+			error: function(a) {
+				console.log(a);
+			}
+		});
 	};
 </script>
 <script>
-	var address='http://localhost:8888/';
-	var tasklist=[];
-	window.key='';
-	setInterval(function(){
-		if(tasklist.length>0){
+	var address = 'http://localhost:8888/';
+	var tasklist = [];
+	window.key = '';
+	setInterval(function() {
+		if(tasklist.length > 0) {
 			tasklist.shift()();
 		}
-	},1000);
-	tasklist.push(function(){
-		$.post(address+'login',{
-			name:'tttt',
-			pass:'1111'
-		},function(data){
-			window.key=data.key;
-			data=JSON.stringify(data);
-			$('body').append('<p>'+data+'<p>');
+	}, 500);
+	tasklist.push(function() {
+		$.post(address + 'login', {
+			name: 'tttt',
+			pass: '1111'
+		}, function(data) {
+			window.key = data.key;
+			data = JSON.stringify(data);
+			$('body').append('<p>' + data + '<p>');
 		});
 	});
-	
-	
-	tasklist.push(function(){
-		send('regist',{
-			name:'测试1',
-			pass:'1111',
-			email:'12123213213123'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>账户健全'+data+'<p>');
+	tasklist.push(function() {
+		send('regist', {
+			name: '测试1',
+			pass: '1111',
+			email: '12123213213123'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>账户健全' + data + '<p>');
 		});
 	});
-		tasklist.push(function(){
-		send('regist',{
-			name:'测试1',
-			pass:'1111'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>无邮箱'+data+'<p>');
+	tasklist.push(function() {
+		send('regist', {
+			name: '测试1',
+			pass: '1111'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>无邮箱' + data + '<p>');
 		});
 	});
-		tasklist.push(function(){
-		send('regist',{
-			pass:'1111',
-			email:'12123213213123'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>无用户名'+data+'<p>');
+	tasklist.push(function() {
+		send('regist', {
+			pass: '1111',
+			email: '12123213213123'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>无用户名' + data + '<p>');
 		});
 	});
-		tasklist.push(function(){
-		send('regist',{
-			name:'测试1',
-			email:'12123213213123'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>无密码'+data+'<p>');
+	tasklist.push(function() {
+		send('regist', {
+			name: '测试1',
+			email: '12123213213123'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>无密码' + data + '<p>');
 		});
 	});
-	tasklist.push(function(){
-		send('regist',{
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>什么都没有'+data+'<p>');
+	tasklist.push(function() {
+		send('regist', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>什么都没有' + data + '<p>');
 		});
 	});
 	//editpass
-	tasklist.push(function(){
-		send('editpass',{
-						oldpass:'1111',
-			newpass:'12123213213123'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>密码修改'+data+'<p>');
+	tasklist.push(function() {
+		send('editpass', {
+			oldpass: 'dfgfdgdf',
+			newpass: '12123213213123'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>密码瞎jb改' + data + '<p>');
 		});
 	});
-		tasklist.push(function(){
-		send('login',{
-			name:'tttt',
-			pass:'12123213213123'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>再次登录'+data+'<p>');
+	tasklist.push(function() {
+		send('editpass', {
+			newpass: '12123213213123'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>密码参数不全' + data + '<p>');
 		});
 	});
-		tasklist.push(function(){
-		send('regist',{
-						oldpass:'12123213213123',
-			newpass:'1111'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>密码改回'+data+'<p>');
+	tasklist.push(function() {
+		send('editpass', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>密码全没有' + data + '<p>');
 		});
 	});
-		tasklist.push(function(){
-		send('logout',{
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>测试退出方法'+data+'<p>');
+	tasklist.push(function() {
+		send('editpass', {
+			oldpass: 'dfgfdgdf',
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>只有旧密码' + data + '<p>');
 		});
 	});
-			tasklist.push(function(){
-		send('login',{
-						name:'tttt',
-			pass:'1111'
-		},function(data){
-			data=JSON.stringify(data);
-			$('body').append('<p>再次登录'+data+'<p>');
+	tasklist.push(function() {
+		send('editpass', {
+			oldpass: '1111',
+			newpass: '12123213213123'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>密码修改' + data + '<p>');
 		});
 	});
-//	//editpass测试
-//	tasklist.push(function(){
-//		$.post(address+'login',{
-//			name:'tttt',
-//			pass:'12123213213123'
-//		},function(data){
-//			$('body').append('<p>再次登录'+data+'<p>');
+	tasklist.push(function() {
+		send('login', {
+			name: 'tttt',
+			pass: '12123213213123'
+		}, function(data) {
+			window.key = data.key;
+			data = JSON.stringify(data);
+			$('body').append('<p>再次登录' + data + '<p>');
+		});
+	});
+	tasklist.push(function() {
+		send('editpass', {
+			oldpass: '12123213213123',
+			newpass: '1111'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>密码改回' + data + '<p>');
+		});
+	});
+	tasklist.push(function() {
+		send('logout', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>测试退出方法' + data + '<p>');
+		});
+	});
+	tasklist.push(function() {
+		send('login', {
+			name: 'tttt',
+			pass: '1111'
+		}, function(data) {
+			window.key = data.key;
+			data = JSON.stringify(data);
+			$('body').append('<p>再次登录' + data + '<p>');
+		});
+	});
+	//测试根据日期获取数据
+//	tasklist.push(function() {
+//		send('getListByDate', {
+//
+//		}, function(data) {
+//			data = JSON.stringify(data);
+//			$('body').append('<p>根据日期获取数据-没参数' + data + '<p>');
 //		});
 //	});
-//	tasklist.push(function(){
-//		$.post(address+'editpass',{
-//			oldpass:'12123213213123',
-//			newpass:'1111'
-//		},function(data){
-//			$('body').append('<p>密码改回'+data+'<p>');
+//	tasklist.push(function() {
+//		send('getListByDate', {
+//			date: 'xcvxc',
+//		}, function(data) {
+//			data = JSON.stringify(data);
+//			$('body').append('<p>根据日期获取数据-data-英文字母' + data + '<p>');
 //		});
 //	});
-//	tasklist.push(function(){
-//		$.post(address+'logout',{
-//		},function(data){
-//			$('body').append('<p>测试退出方法'+data+'<p>');
-//		});
-//	});
-//	tasklist.push(function(){
-//		$.post(address+'login',{
-//			name:'tttt',
-//			pass:'1111'
-//		},function(data){
-//			$('body').append('<p>再次登录'+data+'<p>');
-//		});
-//	});
-//	
-//	
+	//	tasklist.push(function() {
+	//		send('getListByDate', {
+	//			date:''
+	//		}, function(data) {
+	//			data = JSON.stringify(data);
+	//			$('body').append('<p>根据日期获取数据-参数正确' + data + '<p>');
+	//		});
+	//	});
+	//task暂时没有数据
+
+	//获取设置信息
+	tasklist.push(function() {
+		send('getSetInfo', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>获取设置信息：' + data + '<p>');
+		});
+	});
+	//设置邮箱信息
+	tasklist.push(function() {
+		send('setEmailInfo', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>设置邮箱信息-无参数：' + data + '<p>');
+		});
+	});
+	tasklist.push(function() {
+		send('setEmailInfo', {
+			useremail: '测试邮箱',
+			userpass: '测试密码',
+			emailserver: "测试服务器",
+			reciveaddress: "测试接收地址"
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>设置邮箱信息-全参数：' + data + '<p>');
+		});
+	});
+	tasklist.push(function() {
+			send('setEmailInfo', {
+				useremail: '测试邮箱',
+				emailserver: "测试服务器"
+			}, function(data) {
+				data = JSON.stringify(data);
+				$('body').append('<p>设置邮箱信息-一半参数：' + data + '<p>');
+			});
+		})
+		//测试邮箱是否通畅
+
+	//测试设置报表发送事件
+	tasklist.push(function() {
+		send('setReportTimer', {
+
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>测试设置报表发送事件-无参数：' + data + '<p>');
+		});
+	})
+	tasklist.push(function() {
+		send('setReportTimer', {
+			sendfrequency: 'day',
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>测试设置报表发送事件-单参数：' + data + '<p>');
+		});
+	})
+	tasklist.push(function() {
+			send('setReportTimer', {
+				sendfrequency: 'day',
+				sendday: 2,
+				sendhour: 6,
+				sendmine: 43,
+				autosend: true
+			}, function(data) {
+				data = JSON.stringify(data);
+				$('body').append('<p>测试设置报表发送事件-全参数：' + data + '<p>');
+			});
+		})
+		//添加自动填充任务
+	tasklist.push(function() {
+		send('addAutoTask', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>添加自动填充任务-无参数：' + data + '<p>');
+		});
+	});
+	tasklist.push(function() {
+			send('addAutoTask', {
+				content: "123213213123123",
+			}, function(data) {
+				data = JSON.stringify(data);
+				$('body').append('<p>添加自动填充任务-正确参数：' + data + '<p>');
+			});
+		})
+		//获取自动填充任务
+	tasklist.push(function() {
+			send('getAutoTask', {}, function(data) {
+				data = JSON.stringify(data);
+				$('body').append('<p>获取自动填充任务-正确参数：' + data + '<p>');
+			});
+		})
+		//删除自动填充任务
+	tasklist.push(function() {
+			send('deleteTcTask', {
+				id:'58400da9034b093f9c31cfde'
+			}, function(data) {
+				data = JSON.stringify(data);
+				$('body').append('<p>获取自动填充任务-正确参数：' + data + '<p>');
+			});
+		})
+	//增加任务
+	tasklist.push(function() {
+		send('addTask', {}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>增加任务-无参数：' + data + '<p>');
+		});
+	})
+	tasklist.push(function() {
+		send('addTask', {
+			content: '测试而已'
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>增加任务-只有密码：' + data + '<p>');
+		});
+	})
+	tasklist.push(function() {
+		send('addTask', {
+			date: new Date().getTime()
+		}, function(data) {
+			data = JSON.stringify(data);
+			$('body').append('<p>增加任务-只有日期：' + data + '<p>');
+		});
+	})
+	tasklist.push(function() {
+				send('addTask', {
+					date: new Date().getTime(),
+					content: '测试而已'
+				}, function(data) {
+					data = JSON.stringify(data);
+					$('body').append('<p>增加任务-全参数：' + data + '<p>');
+				});
+			});
+			//删除任务
+		tasklist.push(function() {
+				send('deleteTask', {
+					id:'58400d31034b093f9c31cfda'
+				}, function(data) {
+					data = JSON.stringify(data);
+					$('body').append('<p>删除任务-全参数：' + data + '<p>');
+				});
+			});
+		tasklist.push(function() {
+				send('deleteTask', {
+				}, function(data) {
+					data = JSON.stringify(data);
+					$('body').append('<p>删除任务-无参数：' + data + '<p>');
+				});
+			});
+			//更新任务
+		tasklist.push(function() {
+				send('updateTask', {
+					id:'58400d31034b093f9c31cfda',
+					content:'eeeeeeeeeeeeeeeeeeeeeeeee'
+				}, function(data) {
+					data = JSON.stringify(data);
+					$('body').append('<p>更新任务-you参数：' + data + '<p>');
+				});
+			});
+			tasklist.push(function() {
+				send('updateTask', {
+				}, function(data) {
+					data = JSON.stringify(data);
+					$('body').append('<p>更新任务-wu参数：' + data + '<p>');
+				});
+			});
 </script>

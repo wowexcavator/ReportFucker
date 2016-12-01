@@ -34,7 +34,7 @@ http.createServer(function(request, response) {
 	request.on('end', function() { //在end事件触发后，通过querystring.parse将post解析为真正的POST请求格式，然后向客户端返回。
 		post = qs.parse(post);
 		//判断令牌
-		if(post!=null&&post.key!=null){
+		if(post!=null&&post.key!=null&&path.indexOf('login')==(-1)&&path.indexOf('logout')==(-1)){
 			//验证令牌的有效性
 			if(checkKey(post.key,request)){
 				route.exec(path, request, response, post,activeUserList);
@@ -43,9 +43,9 @@ http.createServer(function(request, response) {
 				response.end();	
 			}
 		}else{
-			if(path.indexOf('login')>-1){
+			if(path.indexOf('login')>-1||path.indexOf('logout')>-1){
 				//生成新的令牌
-				route.exec('login', request, response, post,activeUserList);
+				route.exec(path, request, response, post,activeUserList);
 			}else{
 				response.write('{"state":"false","login":"noAccess"}');
 				response.end();	

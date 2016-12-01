@@ -31,9 +31,7 @@ function route() {
 		if(request.sesssion!=null&&request.session.userid!=null){
 			log.userid=request.session.userid;
 		}
-		log.save(function(err,res){
-			console.log(res);
-		});//写入日志
+		log.save();//写入日志
 		if(this.routetable[path] != null) {
 			this.routetable[path](request, response,param,userlist); //执行对应的方法
 		} else {
