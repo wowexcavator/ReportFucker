@@ -1,9 +1,7 @@
-var mongoose=require("mongoose"),
-	var DB_URL=require('./ServerConfig.js').DB_URL;
-	mongoose.connect(DB_URL);
+var mongoose=require("mongoose");
 var Schema = mongoose.Schema;
 var userSchema=new Schema({
-    _id :  Schema.T ypes.ObjectId,
+    _id :  Schema.Types.ObjectId,
     name : String,
     pass : String,
     registemail:String,

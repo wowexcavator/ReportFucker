@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>test</title>
+		<script src="js/jquery.min.js"></script>
+	</head>
+	<body>
+		
+	</body>
+</html>
+<script>
+	function send(path,tdata,callback){
+		tdata.key=window.key;
+		console.log(tdata);
+		
+		$.ajax({
+		type: 'post',
+		url: address+path,
+		data: tdata,
+		dataType: 'json',
+		success: callback,
+		error:function(a){
+			console.log(a);
+		}
+	});
+	};
+</script>
+<script>
+	var address='http://localhost:8888/';
+	var tasklist=[];
+	window.key='';
+	setInterval(function(){
+		if(tasklist.length>0){
+			tasklist.shift()();
+		}
+	},1000);
+	tasklist.push(function(){
+		$.post(address+'login',{
+			name:'tttt',
+			pass:'1111'
+		},function(data){
+			window.key=data.key;
+			data=JSON.stringify(data);
+			$('body').append('<p>'+data+'<p>');
+		});
+	});
+	
+	
+	tasklist.push(function(){
+		send('regist',{
+			name:'测试1',
+			pass:'1111',
+			email:'12123213213123'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>账户健全'+data+'<p>');
+		});
+	});
+		tasklist.push(function(){
+		send('regist',{
+			name:'测试1',
+			pass:'1111'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>无邮箱'+data+'<p>');
+		});
+	});
+		tasklist.push(function(){
+		send('regist',{
+			pass:'1111',
+			email:'12123213213123'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>无用户名'+data+'<p>');
+		});
+	});
+		tasklist.push(function(){
+		send('regist',{
+			name:'测试1',
+			email:'12123213213123'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>无密码'+data+'<p>');
+		});
+	});
+	tasklist.push(function(){
+		send('regist',{
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>什么都没有'+data+'<p>');
+		});
+	});
+	//editpass
+	tasklist.push(function(){
+		send('editpass',{
+						oldpass:'1111',
+			newpass:'12123213213123'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>密码修改'+data+'<p>');
+		});
+	});
+		tasklist.push(function(){
+		send('login',{
+			name:'tttt',
+			pass:'12123213213123'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>再次登录'+data+'<p>');
+		});
+	});
+		tasklist.push(function(){
+		send('regist',{
+						oldpass:'12123213213123',
+			newpass:'1111'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>密码改回'+data+'<p>');
+		});
+	});
+		tasklist.push(function(){
+		send('logout',{
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>测试退出方法'+data+'<p>');
+		});
+	});
+			tasklist.push(function(){
+		send('login',{
+						name:'tttt',
+			pass:'1111'
+		},function(data){
+			data=JSON.stringify(data);
+			$('body').append('<p>再次登录'+data+'<p>');
+		});
+	});
+//	//editpass测试
+//	tasklist.push(function(){
+//		$.post(address+'login',{
+//			name:'tttt',
+//			pass:'12123213213123'
+//		},function(data){
+//			$('body').append('<p>再次登录'+data+'<p>');
+//		});
+//	});
+//	tasklist.push(function(){
+//		$.post(address+'editpass',{
+//			oldpass:'12123213213123',
+//			newpass:'1111'
+//		},function(data){
+//			$('body').append('<p>密码改回'+data+'<p>');
+//		});
+//	});
+//	tasklist.push(function(){
+//		$.post(address+'logout',{
+//		},function(data){
+//			$('body').append('<p>测试退出方法'+data+'<p>');
+//		});
+//	});
+//	tasklist.push(function(){
+//		$.post(address+'login',{
+//			name:'tttt',
+//			pass:'1111'
+//		},function(data){
+//			$('body').append('<p>再次登录'+data+'<p>');
+//		});
+//	});
+//	
+//	
+</script>

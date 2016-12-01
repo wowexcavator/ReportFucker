@@ -8,6 +8,10 @@ var EXPIRES = 30*24*60*60*1000;
 var key='session_id';
 //sessionList 
 var sessionList=[];
+//DBcontent
+var mongoose=require("mongoose"),
+	DB_URL=require('./ServerConfig.js').DB_URL;
+	mongoose.connect(DB_URL);
 //創建服務
  http.createServer(function(request,response){
  	var session={};
@@ -60,7 +64,8 @@ var sessionList=[];
  		//替换头写入函数
  	var writeHead = response.writeHead;
  		response.writeHead = function(){
-			response.setHeader('Set-Cookie','session_id='+request.session.cookie.id+';expires='+sToGMT(request.session.cookie.expires));
+			response.setHeader('Set-Cookie','session_id='+request.session.id+';expires='+sToGMT(request.session.cookie.expires));
+			response.setHeader('Access-Control-Allow-Origin','*');
 			return writeHead.apply(this, arguments);
 		}
  		response.writeHead(200, {
