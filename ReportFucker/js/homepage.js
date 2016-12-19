@@ -166,11 +166,11 @@ $(function() {
 	$("#btn-close").click(function() { //退出程序
 		nw.App.quit();
 	});
-	$("#btn-small").click(function() {
+	$("#btn-small").click(function() {//缩小	
 		var win = nw.Window.get();
 		win.minimize();
 	});
-	$("#btn-refresh").click(function() {
+	$("#btn-refresh").click(function() {//刷新
 		location.reload();
 	});
 })
@@ -444,6 +444,20 @@ function localDB() {
 			}
 			this.saveStorage(this.Data);
 		}
+	//获取登陆key
+	this.getKey=function(){
+		if(localStorage.UserKey){
+			return localStorage.UserKey;
+		}else{
+			return null;
+		}
+	}
+	//设置登陆key
+	this.setKey=function(key){
+		if(key){
+			localStorage.UserKey=key;
+		}
+	}
 		//构造函数
 
 	if(localStorage.Data != null) {
@@ -612,7 +626,7 @@ $(function() {
 function NetServer() {
 	//服务器地址列表
 	this.servertable = {
-		base: 'http://www.shellcandy.cn',
+		base: 'http://http://127.0.0.1:8888/',
 		login: 'login',
 		regist: 'regist',
 		editpass: 'editpass',
@@ -624,7 +638,9 @@ function NetServer() {
 		setReportTimer: 'setReportTimer',
 		addAutoTask: 'addAutoTask',
 		setAutoSend: 'setAutoSend',
+		getAutoTask:'getAutoTask',
 		deleteAutoTask: 'deleteAutoTask',
+		deleteTcTask:'deleteTcTask',
 		addTask: 'addTask',
 		deleteTask: 'deleteTask',
 		updateTask: 'updateTask',
@@ -636,6 +652,19 @@ function NetServer() {
 				name: param.name,
 				pass: param.pass,
 			}
+			var success=function(obj){
+				if(obj!=null){
+					if(obj.state=='success'&&obj.key!=null){
+						window.DB.setKey(obj.key);
+					}else{
+						if(obj.msg){
+							window.msg.show(obj.msg);							
+						}else{
+							window.msg.show('登陆失败!');
+						}
+					}
+				}
+			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
 		//注册
@@ -645,6 +674,21 @@ function NetServer() {
 				name: param.name,
 				pass: param.pass,
 				email: param.email,
+			}
+			var success=function(obj){
+				if(obj!=null){
+					if(obj.state=='success'){
+						if(obj.msg){
+							window.msg.show(obj.msg);							
+						}			
+					}else{
+						if(obj.msg){
+							window.msg.show(obj.msg);							
+						}else{
+							window.msg.show('注册失败!');
+						}
+					}
+				}
 			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
@@ -944,7 +988,7 @@ $(function() {
 		window.NS.getSetInfo();
 		//綁定退出按鈕
 		$('#btn-layout').click(function() {
-			window.NS.Layer();
+			window.NS.logout();
 		});
 		//綁定修改密碼
 		$("#btn-editpass").click(function() {
