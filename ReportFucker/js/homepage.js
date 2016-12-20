@@ -696,11 +696,16 @@ function NetServer() {
 	this.editpass = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.editpass;
 			var data = {
+				key:window.DB.getKey(),
 				oldpass: param.oldpass,
-				pass: param.pass,
+				newpass: param.pass,
 			}
 			var success = function(obj) {
 				if(obj.state == 'success') {
+					if(obj.msg) {
+						window.msg.show('密码修改成功!');
+					}
+				}else{
 					if(obj.msg) {
 						window.msg.show(obj.msg);
 					}
@@ -714,12 +719,18 @@ function NetServer() {
 		//退出登录
 	this.logout = function() {
 			var address = this.servertable.base + '/' + this.servertable.logout;
-			var data = {};
+			var data = {
+				key:window.DB.getKey()
+			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
 					if(obj.msg) {
 						window.msg.show(obj.msg);
 					}
+					//无论退出成功与否,都会将本地的登陆状态删除
+					window.DB.setKey('');
+					//隐藏当前页面,跳回登陆页
+					
 				}
 			}
 			var warn = function(obj) {
@@ -731,6 +742,7 @@ function NetServer() {
 	this.getListByDate = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.getListByDate;
 			var data = {
+				key:window.DB.getKey(),
 				date: param.date,
 			};
 			var success = function(obj) {
@@ -738,6 +750,13 @@ function NetServer() {
 					if(obj.data) {
 						return obj.data;
 					}
+				}else{
+					if(obj.msg!=null){
+						window.msg.show(obj.msg);
+					}else{
+						window.msg.show('获取日期请求失败!');
+					}
+					
 				}
 			}
 			var warn = function(obj) {
@@ -749,7 +768,7 @@ function NetServer() {
 	this.getSetInfo = function() {
 			var address = this.servertable.base + '/' + this.servertable.getSetInfo;
 			var data = {
-
+				key:window.DB.getKey(),
 			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
@@ -794,19 +813,20 @@ function NetServer() {
 
 							$('.select-mine').val(obj.data.sendmine);
 						}
-						if(obj.data.tclist) {
-							if(obj.data.tclist.length > 0) {
-								var html = '';
-								for(var i = 0; i < obj.data.tclist.length; i++) {
-									var node = obj.data.tclist[i];
-									html += '<tr data-id="' + node.id + '">\
-								<td>' + node.content + '</td>\
-								<td><span onclick="deleteAutoTask(this)" class="fa fa-close btn-swing"></span></td>\
-								</tr>';
-								}
-							}
-							$('#tianchongsetter').html(html);
-						}
+						tctask迁移到其他请求中了
+//						if(obj.data.tclist) {
+//							if(obj.data.tclist.length > 0) {
+//								var html = '';
+//								for(var i = 0; i < obj.data.tclist.length; i++) {
+//									var node = obj.data.tclist[i];
+//									html += '<tr data-id="' + node.id + '">\
+//								<td>' + node.content + '</td>\
+//								<td><span onclick="deleteAutoTask(this)" class="fa fa-close btn-swing"></span></td>\
+//								</tr>';
+//								}
+//							}
+//							$('#tianchongsetter').html(html);
+//						}
 					}
 				}
 			}
@@ -819,6 +839,7 @@ function NetServer() {
 	this.setEmailInfo = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.setEmailInfo;
 			var data = {
+				key:window.DB.getKey(),
 				userpass: param.userpass,
 				emailserver: param.emailserver,
 				reciveaddress: param.reciveaddress,
@@ -826,7 +847,9 @@ function NetServer() {
 			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
-					window.msg.show('邮箱设置成功!');
+					if(obj.msg!=null){
+						window.msg.show(obj.msg);
+					}
 				} else {
 					window.msg.show('邮箱设置失败!天啦噜!');
 				}
@@ -840,7 +863,7 @@ function NetServer() {
 	this.testEmail = function() {
 			var address = this.servertable.base + '/' + this.servertable.testEmail;
 			var data = {
-
+				key:window.DB.getKey(),
 			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
@@ -850,7 +873,7 @@ function NetServer() {
 				}
 			}
 			var warn = function(obj) {
-
+						window.msg.show('网络不通!请稍后再试!');
 			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
@@ -862,16 +885,19 @@ function NetServer() {
 				sendday: param.sendday,
 				sendhour: param.sendhour,
 				sendmine: param.sendmine,
+				autosend:param.autosend,
 			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
 					if(obj.msg) {
-						window.msg.show('设置成功!天啦噜!');
+						if(obj.msg) {
+							window.msg.show(obj.msg);
+						}
 					}
 				}
 			}
 			var warn = function(obj) {
-
+				window.msg.show('网络不通!请稍后再试!');
 			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
