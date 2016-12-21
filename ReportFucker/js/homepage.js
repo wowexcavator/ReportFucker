@@ -382,6 +382,14 @@ function localDB() {
 
 			}
 		}
+	//更具localid获取taskID
+	this.getTaskIdByLocalId=function(date,localid){
+			for(var i = 0; i < this.Data[date].length; i++) {
+				if(this.Data[date][i].localid == localid) {
+					return this.Data[date][i].id;
+				}
+			}
+	}
 		//跟新某一天的数据
 	this.updateTask = function(date, data) {
 			for(var i = 0; i < this.Data[date].length; i++) {
@@ -488,13 +496,14 @@ function TaskManage() {
 			});
 		}
 		//删除任务
-	this.deleteTask = function(localid) {
+	this.deleteTask = function(localid,id) {
 			window.DB.deleteTask(this.curdate, localid);
 			window.LocalTaskList.push({
 				com: 'deleteTask',
 				param: {
 					date: this.curdate,
 					'localid': localid,
+					taskid:window.DB.getTaskIdByLocalId(this.curdate,localid),
 				},
 			});
 		}
@@ -508,6 +517,7 @@ function TaskManage() {
 					'localid': obj.localid,
 					content: obj.content,
 					state: obj.state,
+					id:obj.id,
 				},
 			});
 		}
@@ -525,6 +535,7 @@ function TaskManage() {
 	this.getTaskListByDate = function() {
 		return window.DB.getDataByDate(this.curdate);
 	}
+	
 }
 
 //获取当前时间戳
@@ -813,20 +824,7 @@ function NetServer() {
 
 							$('.select-mine').val(obj.data.sendmine);
 						}
-						tctask迁移到其他请求中了
-//						if(obj.data.tclist) {
-//							if(obj.data.tclist.length > 0) {
-//								var html = '';
-//								for(var i = 0; i < obj.data.tclist.length; i++) {
-//									var node = obj.data.tclist[i];
-//									html += '<tr data-id="' + node.id + '">\
-//								<td>' + node.content + '</td>\
-//								<td><span onclick="deleteAutoTask(this)" class="fa fa-close btn-swing"></span></td>\
-//								</tr>';
-//								}
-//							}
-//							$('#tianchongsetter').html(html);
-//						}
+
 					}
 				}
 			}
@@ -881,6 +879,7 @@ function NetServer() {
 	this.setReportTimer = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.setReportTimer;
 			var data = {
+				key:window.DB.getKey(),
 				sendfrequency: param.sendfrequency,
 				sendday: param.sendday,
 				sendhour: param.sendhour,
@@ -902,27 +901,28 @@ function NetServer() {
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
 		//设置报表自动发送开关
-	this.setAutoSend = function(param) {
-			var address = this.servertable.base + '/' + this.servertable.setAutoSend;
-			var data = {
-				autosend: param.autosend,
-			};
-			var success = function(obj) {
-				if(obj.state == 'success') {
-					if(obj.msg) {
-						window.msg.show('设置成功');
-					}
-				}
-			}
-			var warn = function(obj) {
-
-			}
-			ajaxPackage(address, "Post", data, "json", false, success, warn);
-		}
+//	this.setAutoSend = function(param) {
+//			var address = this.servertable.base + '/' + this.servertable.setAutoSend;
+//			var data = {
+//				autosend: param.autosend,
+//			};
+//			var success = function(obj) {
+//				if(obj.state == 'success') {
+//					if(obj.msg) {
+//						window.msg.show('设置成功');
+//					}
+//				}
+//			}
+//			var warn = function(obj) {
+//
+//			}
+//			ajaxPackage(address, "Post", data, "json", false, success, warn);
+//		}
 		//增加自动回复
 	this.addAutoTask = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.addAutoTask;
 			var data = {
+				key:window.DB.getKey(),
 				content: param.content,
 			};
 			var success = function(obj) {
@@ -930,6 +930,10 @@ function NetServer() {
 					if(obj.msg) {
 						window.msg.show('添加成功');
 					}
+				}else{
+					if(obj.msg) {
+						window.msg.show('添加失败');
+					}
 				}
 			}
 			var warn = function(obj) {
@@ -937,16 +941,51 @@ function NetServer() {
 			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
+	//获取自动填充任务
+	this.getAutoTask=function(param){
+		var address = this.servertable.base + '/' + this.servertable.getAutoTask;
+			var data = {
+				key:window.DB.getKey(),
+			};
+			var success = function(obj) {
+				if(obj.state == 'success') {
+						if(obj.data.tclist) {
+							if(obj.data.tclist.length > 0) {
+								var html = '';
+								for(var i = 0; i < obj.data.tclist.length; i++) {
+									var node = obj.data.tclist[i];
+									html += '<tr data-id="' + node.id + '">\
+								<td>' + node.content + '</td>\
+								<td><span onclick="deleteAutoTask(this)" class="fa fa-close btn-swing"></span></td>\
+								</tr>';
+								}
+							}
+							$('#tianchongsetter').html(html);
+						}
+				}
+			}
+			var warn = function(obj) {
+
+			}
+			ajaxPackage(address, "Post", data, "json", false, success, warn);
+	}
 		//删除自动增加任务
 	this.deleteAutoTask = function(param) {
 			var address = this.servertable.base + '/' + this.servertable.deleteAutoTask;
 			var data = {
 				id: param.id,
+				key:window.DB.getKey(),
 			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
 					if(obj.msg) {
-						window.msg.show('删除成功');
+						window.msg.show(obj.msg);
+					}
+				}else{
+					if(obj.msg) {
+						window.msg.show('删除失败');
+					}else{
+						window.msg.show('删除失败');
 					}
 				}
 			}
@@ -959,19 +998,41 @@ function NetServer() {
 	this.addTask = function(param, success, warn) {
 			var address = this.servertable.base + '/' + this.servertable.addTask;
 			var data = {
+				key:window.DB.getKey(),
 				date: param.date,
 				content: param.content,
 				state: param.state,
 				localid: param.localid,
 			};
+			var success = function(obj) {
+				if(obj.state == 'success') {
+					if(obj.msg) {
+						window.msg.show(obj.msg);
+					}
+					if(obj.taskid){
+						window.DB.updateTask({
+							id:obj.taskid,
+							localid:obj.localid,
+						});
+					}
+				}else{
+					if(obj.msg) {
+						window.msg.show('添加失败');
+					}else{
+						window.msg.show('添加失败');
+					}
+				}
+			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
 		//删除任务
 	this.deleteTask = function(param, success, warn) {
 			var address = this.servertable.base + '/' + this.servertable.deleteTask;
 			var data = {
+				key:window.DB.getKey(),
 				date: param.date,
 				localid: param.localid,
+				id:param.taskid,
 			};
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
@@ -979,6 +1040,7 @@ function NetServer() {
 	this.updateTask = function(param, success, warn) {
 		var address = this.servertable.base + '/' + this.servertable.updateTask;
 		var data = {
+			key:window.DB.getKey(),
 			date: param.date,
 			content: param.content,
 			state: param.state,
@@ -1054,26 +1116,40 @@ $(function() {
 		//设置发动时间
 		$('#btn-dateset').click(function() {
 			var sf = $('input[name=sendtime]:checked').attr('data-time');
-			var day, hour, mine;
+			var day, hour, mine,tautosend;
 			if(sf == 'day') {
 				hour = $('#sl-day-h').val();
 				mine = $('#sl-day-m').val();
+				if($(this).attr('id') == 'radio-autosend') {
+					tautosend=true;
+				}
+				if($(this).attr('id') == 'radio-closesend') {
+					tautosend=false;
+				}
 				window.NS.setReportTimer({
 					sendfrequency: sf,
 					sendday: '',
 					sendhour: hour,
 					sendmine: mine,
+					autosend:tautosend,
 				});
 			}
 			if(sf == 'week') {
 				day = $('#sl-week-d').val();
 				hour = $('#sl-week-h').val();
 				mine = $('#sl-week-m').val();
+				if($(this).attr('id') == 'radio-autosend') {
+					tautosend=true;
+				}
+				if($(this).attr('id') == 'radio-closesend') {
+					tautosend=false;
+				}
 				window.NS.setReportTimer({
 					sendfrequency: sf,
 					sendday: day,
 					sendhour: hour,
 					sendmine: mine,
+					autosend:tautosend,
 				});
 			}
 
@@ -1104,7 +1180,7 @@ $(function() {
 		if(window.msuo && window.serverState) {
 			window.msuo = false; //加锁
 			if(window.LocalTaskList.length > 0) {
-				var node = window.LocalTaskList.shift();
+				var node = window.LocalTaskList[0];
 				if(node.com == 'addTask') {
 					window.NS.createTask({
 						date: node.date,

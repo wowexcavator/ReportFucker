@@ -316,7 +316,8 @@
 	tasklist.push(function() {
 				send('addTask', {
 					date: new Date().getTime(),
-					content: '测试而已'
+					content: '测试而已',
+					localid:'12312312321321321321'
 				}, function(data) {
 					data = JSON.stringify(data);
 					$('body').append('<p>增加任务-全参数：' + data + '<p>');

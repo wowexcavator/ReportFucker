@@ -6,7 +6,8 @@ var taskSchema=new Schema({
         date : Date,
         content : String,
         state : String,
-        delete:Boolean
+        delete:Boolean,
+        localid:String
 	});
 var taskModel=mongoose.model('task',taskSchema,'task');
 module.exports=taskModel;

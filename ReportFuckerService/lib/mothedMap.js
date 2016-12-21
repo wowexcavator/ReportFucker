@@ -465,6 +465,7 @@ function mothedMap() {
 					content: param.content,
 					state: 'undone',
 					delete: false,
+					localid:param.localid,
 				});
 				task.save(function(err,res) {
 					if(err) {
@@ -472,7 +473,7 @@ function mothedMap() {
 						response.end();
 						return false;
 					} else {
-						response.write('{"state":"success","msg":"添加任务成功"}');
+						response.write('{"state":"success","msg":"添加任务成功","localid":"'+res.localid+'","taskid":"'+res.id+'"}');
 						response.end();
 						return true;
 					}

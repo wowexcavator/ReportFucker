@@ -162,3 +162,32 @@ setReportTimer
 {
 	state:'success',//false
 }
+
+//添加任务
+//addTask
+
+//request
+{
+	date:"",
+	content:'12321312',
+	
+}
+
+//response
+{
+	state:'success',//false
+}
+
+//删除任务
+//deleteTask
+
+//request
+{
+	taskid:'qsdfdsfds'
+}
+
+//response
+{
+	state:'success',//false
+}
+
