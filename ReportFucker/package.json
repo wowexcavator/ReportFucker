@@ -1,13 +1,15 @@
 {
 	"name": "周报fucker",
-	"main": "homepage.html",
+	"main": "index.html",
 	"window": {
 		"toolbar": false, //这个选项对于开发太重要了
-		"title": "NetEaseMusic",
+		"title": "ReportFucker",
 		"toolbar": true,
 		"frame": false,
 		"transparent":true,
-		"width":1100,
-		"height":650
+		"width":500,
+		"height":330
 	}
 }
+//		"width":1100,
+//		"height":650

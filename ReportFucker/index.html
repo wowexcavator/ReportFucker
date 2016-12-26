@@ -4,12 +4,12 @@
 	<head>
 		<meta charset="utf-8">
 		<title>周报fucker</title>
-		<script src="jquery.min.js"></script>
+		<script src="js/jquery.min.js"></script>
 	</head>
 
 	<body>
 		<div class="content">
-			<img class="bgimg" src="welcome.jpg" />
+			<img class="bgimg" src="img/welcome.jpg" />
 			<div class="title">周报生成器</div>
 			<div class="detil">初始化中.....</div>
 		</div>
@@ -89,4 +89,7 @@ var App=nw.App;
 	},800);
 //	setTimeout(function(){App.quit()},4000);
 	setInterval(function(){win.moveTo(1000,500)},10);
+	setTimeout(function(){
+		window.open('homepage.html',{width:'1000px',height:'550px'});
+	},5000);
 </script>

@@ -2,8 +2,7 @@
 window.addressTable = {
 
 	}
-	//本地操作任务队列
-window.LocalTaskList = [];
+
 //本地存储操作对象
 window.DB = new localDB();
 //顶级状态管理器
@@ -20,6 +19,21 @@ window.TL = new TaskList();
 window.NS = new NetServer();
 //网络链接状态
 window.serverState = false;
+//服务器错误控制
+window.serverErr=true;
+//本地操作任务队列
+window.LocalTaskList = window.DB.getTaskList();
+//测试选项
+//---自动登陆
+$.post('http://localhost:8888/' + 'login', {
+			name: 'tttt',
+			pass: '1111'
+		}, function(data) {
+			window.DB.setKey(data.key);
+			data = JSON.stringify(data);
+			window.msg.console('登录成功' );
+		});
+//测试选项结束
 $(function() { //设置窗的弹出动画
 	$("#btn-set").click(function() {
 		$("#setting").show();
@@ -254,7 +268,9 @@ function taskDelete(mythis, e) {
 		'right': '-51px'
 	}, 100);
 	node.find(".btns").attr("data-show", 'false');
+	
 	var lid = node.attr('data-localid');
+	node.attr('data-localid','');
 	window.TM.deleteTask(lid);
 }
 //添加和编辑任务
@@ -267,7 +283,6 @@ function addOrEditTask(mythis, e) {
 	$(mythis).find(".taskcontent").html(node);
 	$(mythis).find(".ta").text(str);
 	$(mythis).find(".ta").focus();
-
 }
 //任务编辑框失去焦点之后
 function taskBlur(mythis, e) {
@@ -317,6 +332,28 @@ function localDB() {
 
 	//数据源
 	this.Data = null;
+	//保存ServerTaskList
+	this.saveTaskList=function(list){
+		try {
+				localStorage.TaskList = JSON.stringify(list);
+			} catch(error) {
+				return false;
+			}
+			return false;
+	}
+	//读取ServerTaskList
+	this.getTaskList=function(){
+		try {
+				var list=JSON.parse(localStorage.TaskList);
+				if(list==null){
+					return [];
+				}else{
+					return list;
+				}
+			} catch(error) {
+				return [];
+			}
+	}
 
 	//将数据持久化
 	this.saveStorage = function(obj) {
@@ -342,7 +379,7 @@ function localDB() {
 					'date':date,
 				},function(obj){
 					if(obj.state=='success'){
-						if(obj.data&&obj.data.length){
+						if(obj.data&&obj.data.length>0){
 							var date=obj.data[0].date;
 							var list=[];
 							for(var i=0;i<obj.data.length;i++){
@@ -350,7 +387,7 @@ function localDB() {
 								list.push({
 									date:node.date,
 									name:'',
-									id:'',
+									id:node.id,
 									isTB:false,
 									content:node.content,
 									state:node.state,
@@ -358,11 +395,11 @@ function localDB() {
 									
 								});
 							}
-							this.Data[date]=list;//覆盖本地得缓存
+							window.DB.Data[date]=list;//覆盖本地得缓存
 							//将内存中得状态缓存到文件
-							this.saveStorage(this.Data);
+							window.DB.saveStorage(window.DB.Data);
 							//重新加载页面任务列表
-							$("#tasklist ul").html(window.TL.getTaskListStrutsByDate(this.Data));
+							$("#tasklist ul").html(window.TL.getTaskListStrutsByDate(window.DB.Data[date]));
 						}
 					}
 				});
@@ -397,7 +434,7 @@ function localDB() {
 					var powertable = {
 						'date': true,
 						name: true,
-						id: false,
+						id: true,
 						isTb: true,
 						content: true,
 						state: true,
@@ -494,10 +531,11 @@ function TaskManage() {
 				com: 'createTask',
 				param: obj,
 			});
+			window.msg.console('[离线]-新建任务');
 		}
 		//删除任务
 	this.deleteTask = function(localid,id) {
-			window.DB.deleteTask(this.curdate, localid);
+			
 			window.LocalTaskList.push({
 				com: 'deleteTask',
 				param: {
@@ -506,6 +544,8 @@ function TaskManage() {
 					taskid:window.DB.getTaskIdByLocalId(this.curdate,localid),
 				},
 			});
+			window.DB.deleteTask(this.curdate, localid);
+			window.msg.console('[离线]-删除任务');
 		}
 		//更新任务
 	this.updateTask = function(obj) {
@@ -517,9 +557,10 @@ function TaskManage() {
 					'localid': obj.localid,
 					content: obj.content,
 					state: obj.state,
-					id:obj.id,
+					taskid:window.DB.getTaskIdByLocalId(this.curdate,obj.localid)
 				},
 			});
+			window.msg.console('[离线]-更新当前任务');
 		}
 		//更改指示日期
 	this.setDate = function(date) {
@@ -598,7 +639,6 @@ function checkNET(c) {
 		$('#serverstate').text('已连接到服务器');
 		$('#serverstate').css('color', '#4D89C1');
 		window.serverState = true;
-		console.log('链接正常');
 	}
 	var ecallback = function() {
 		$('#serverstate').text('与服务器失去联系');
@@ -607,23 +647,30 @@ function checkNET(c) {
 	}
 	if(c != null) {
 		$.ajax({
-			type: type,
-			url: "http://www.shellcandy.cn/online.php?time=" + getLocalId(),
+			type: 'POST',
+			url: "http://localhost:8888/checknet?time=" + getLocalId(),
 			data: {},
 			dataType: "text",
 			cache: false,
-			async: false,
+			async: true,
 			success: function(obj) {
 				callback(obj);
+				window.serverErr=false;
+				window.msg.console('[同步]>>30S后再次尝试同步....');
+				setTimeout(function(){
+					window.serverErr=true;
+					window.msg.console('[同步]>>同步锁打开.');
+				},30*1000);
 				window.msuo = true; //这个锁怎么都得放开了
 			},
 			error: function(obj) {
 				ecallback(obj);
 				window.msuo = true;
+				
 			},
 		})
 	} else {
-		ajaxPackage("http://www.shellcandy.cn/online.php?time=" + getLocalId(), "Post", {}, "text", false, callback, ecallback);
+		ajaxPackage("http://localhost:8888/checknet?time=" + getLocalId(), "Post", {}, "text", false, callback, ecallback);
 	}
 
 }
@@ -637,7 +684,7 @@ $(function() {
 function NetServer() {
 	//服务器地址列表
 	this.servertable = {
-		base: 'http://http://127.0.0.1:8888/',
+		base: 'http://127.0.0.1:8888',
 		login: 'login',
 		regist: 'regist',
 		editpass: 'editpass',
@@ -650,7 +697,7 @@ function NetServer() {
 		addAutoTask: 'addAutoTask',
 		setAutoSend: 'setAutoSend',
 		getAutoTask:'getAutoTask',
-		deleteAutoTask: 'deleteAutoTask',
+		deleteAutoTask: 'deleteTcTask',
 		deleteTcTask:'deleteTcTask',
 		addTask: 'addTask',
 		deleteTask: 'deleteTask',
@@ -675,6 +722,8 @@ function NetServer() {
 						}
 					}
 				}
+				window.msuo = true; //释放锁
+				window.LocalTaskList.shift();
 			}
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
@@ -750,7 +799,7 @@ function NetServer() {
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
 		//获取某个日期的任务列表
-	this.getListByDate = function(param) {
+	this.getListByDate = function(param,tsuc) {
 			var address = this.servertable.base + '/' + this.servertable.getListByDate;
 			var data = {
 				key:window.DB.getKey(),
@@ -759,7 +808,8 @@ function NetServer() {
 			var success = function(obj) {
 				if(obj.state == 'success') {
 					if(obj.data) {
-						return obj.data;
+						tsuc(obj);
+						
 					}
 				}else{
 					if(obj.msg!=null){
@@ -798,7 +848,7 @@ function NetServer() {
 						}
 						if(obj.data.autosend != null) {
 							if(obj.data.autosend) {
-								$('#radio-autosend’').attr('checked', 'checked');
+								$('#radio-autosend').attr('checked', 'checked');
 							} else {
 								$('#radio-closesend').attr('checked', 'checked');
 							}
@@ -806,9 +856,13 @@ function NetServer() {
 						if(obj.data.sendfrequency) {
 							if(obj.data.sendfrequency == 'day') {
 								$('#radio-day').attr('checked', 'checked');
+								$('.atuo-day').show();
+								$('.atuo-week').hide();
 							}
 							if(obj.data.sendfrequency == 'week') {
 								$('#radio-week').attr('checked', 'checked');
+								$('.atuo-day').hide();
+								$('.atuo-week').show();
 							}
 
 						}
@@ -847,6 +901,7 @@ function NetServer() {
 				if(obj.state == 'success') {
 					if(obj.msg!=null){
 						window.msg.show(obj.msg);
+						window.NS.getSetInfo();
 					}
 				} else {
 					window.msg.show('邮箱设置失败!天啦噜!');
@@ -892,6 +947,7 @@ function NetServer() {
 						if(obj.msg) {
 							window.msg.show(obj.msg);
 						}
+						window.NS.getSetInfo();
 					}
 				}
 			}
@@ -929,6 +985,8 @@ function NetServer() {
 				if(obj.state == 'success') {
 					if(obj.msg) {
 						window.msg.show('添加成功');
+						
+						window.NS.getAutoTask();
 					}
 				}else{
 					if(obj.msg) {
@@ -938,7 +996,7 @@ function NetServer() {
 			}
 			var warn = function(obj) {
 
-			}
+			} 
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
 	//获取自动填充任务
@@ -949,18 +1007,25 @@ function NetServer() {
 			};
 			var success = function(obj) {
 				if(obj.state == 'success') {
-						if(obj.data.tclist) {
-							if(obj.data.tclist.length > 0) {
+						if(obj.data) {
+							if(obj.data.length > 0) {
 								var html = '';
-								for(var i = 0; i < obj.data.tclist.length; i++) {
-									var node = obj.data.tclist[i];
+								for(var i = 0; i < obj.data.length; i++) {
+									var node = obj.data[i];
 									html += '<tr data-id="' + node.id + '">\
 								<td>' + node.content + '</td>\
-								<td><span onclick="deleteAutoTask(this)" class="fa fa-close btn-swing"></span></td>\
+								<td><span onclick="deleteAutoTask(this)" data-tctaskid="'+node.id+'"  class="fa fa-close btn-swing"></span></td>\
 								</tr>';
 								}
+								$('#tianchongsetter').html(html);
+							}else{
+								var html = '<tr >\
+								<td>没有数据</td>\
+								<td><span  class="fa fa-close btn-swing"></span></td>\
+								</tr>';
+								$('#tianchongsetter').html(html);
 							}
-							$('#tianchongsetter').html(html);
+							
 						}
 				}
 			}
@@ -980,6 +1045,7 @@ function NetServer() {
 				if(obj.state == 'success') {
 					if(obj.msg) {
 						window.msg.show(obj.msg);
+						window.NS.getAutoTask();
 					}
 				}else{
 					if(obj.msg) {
@@ -995,7 +1061,7 @@ function NetServer() {
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
 		//增加任务
-	this.addTask = function(param, success, warn) {
+	this.addTask = function(param, tsuccess, warn) {
 			var address = this.servertable.base + '/' + this.servertable.addTask;
 			var data = {
 				key:window.DB.getKey(),
@@ -1010,11 +1076,21 @@ function NetServer() {
 						window.msg.show(obj.msg);
 					}
 					if(obj.taskid){
-						window.DB.updateTask({
+						window.DB.updateTask(window.TM.curdate,{
 							id:obj.taskid,
 							localid:obj.localid,
 						});
+						//为操作队列中没有id的任务增加id
+						if(window.LocalTaskList.length>0){
+							for(var i=0;i<LocalTaskList.length;i++){
+								if(LocalTaskList[i].param.localid==obj.localid){
+									LocalTaskList[i].param.taskid=obj.taskid;
+									window.DB.saveTaskList(window.LocalTaskList);
+								}
+							}
+						}
 					}
+					tsuccess();
 				}else{
 					if(obj.msg) {
 						window.msg.show('添加失败');
@@ -1032,7 +1108,7 @@ function NetServer() {
 				key:window.DB.getKey(),
 				date: param.date,
 				localid: param.localid,
-				id:param.taskid,
+				id:param.id,
 			};
 			ajaxPackage(address, "Post", data, "json", false, success, warn);
 		}
@@ -1045,6 +1121,7 @@ function NetServer() {
 			content: param.content,
 			state: param.state,
 			localid: param.localid,
+			id:param.id,
 		};
 		ajaxPackage(address, "Post", data, "json", false, success, warn);
 	}
@@ -1055,7 +1132,13 @@ function NetServer() {
 function Message() {
 	//提示消息
 	this.show = function(str) {
-		alert(str);
+		console.log(str);
+	}
+	//指令控制台
+	this.console=function(str){
+		$('#log').append(str+'\n');
+		var node=$('#log')[0];
+		node.scrollTop=node.scrollHeight;
 	}
 }
 
@@ -1074,6 +1157,7 @@ $(function() {
 
 		//填充设置页面信息
 		window.NS.getSetInfo();
+		window.NS.getAutoTask();
 		//綁定退出按鈕
 		$('#btn-layout').click(function() {
 			window.NS.logout();
@@ -1100,19 +1184,8 @@ $(function() {
 		$('#btn-testemail').click(function() {
 			window.NS.testEmail();
 		});
-		//报告自动发送
-		$('input[name=sendsockt]').change(function() {
-			if($(this).attr('id') == 'radio-autosend') {
-				window.NS.setAutoSend({
-					autosend: true,
-				});
-			}
-			if($(this).attr('id') == 'radio-closesend') {
-				window.NS.setAutoSend({
-					autosend: false,
-				});
-			}
-		});
+
+
 		//设置发动时间
 		$('#btn-dateset').click(function() {
 			var sf = $('input[name=sendtime]:checked').attr('data-time');
@@ -1157,6 +1230,7 @@ $(function() {
 		//添加自动填充设置
 		$('#btn-addAutoTask').click(function() {
 			var str = $('#autotask').val();
+			 $('#autotask').val('');
 			if(str != null && str.length > 0) {
 				window.NS.addAutoTask({
 					content: str,
@@ -1169,7 +1243,7 @@ $(function() {
 	//删除自动填充设置
 function deleteAutoTask(mythis) {
 	window.NS.deleteAutoTask({
-		id: $(mythis).parents('tr').eq(0).attr('data-id')
+		id: $(mythis).attr('data-tctaskid')
 	});
 }
 
@@ -1177,54 +1251,77 @@ function deleteAutoTask(mythis) {
 $(function() {
 	window.msuo = true; //防止任务时序冲突的锁
 	window.TaskServerTimer = setInterval(function() {
-		if(window.msuo && window.serverState) {
-			window.msuo = false; //加锁
+		if(window.msuo && window.serverState && window.serverErr) {
+			
 			if(window.LocalTaskList.length > 0) {
+				window.msg.console('尝试同步操作...');
+				window.msuo = false; //加锁
 				var node = window.LocalTaskList[0];
-				if(node.com == 'addTask') {
-					window.NS.createTask({
-						date: node.date,
-						content: node.content,
-						state: node.state,
-						localid: node.localid,
+				if(node.com == 'createTask') {
+					window.msg.console('[同步]>>创建任务');
+					window.NS.addTask({
+						date: node.param.date,
+						content: node.param.content,
+						state: node.param.state,
+						localid: node.param.localid,
 					}, function(obj) {
 						window.msuo = true; //释放锁
+						window.LocalTaskList.shift();
+						window.msg.console('[同步]>>创建任务成功');
 					}, function(obj) {
 						if(obj.statusText == "error") {
-							checkNET('tb'); //同步ajax
+							window.msg.console('[同步]>>创建任务失败');
+							checkNET('tb'); 
 						}
-						window.LocalTaskList.unshift(node); //一般情况都是在任务发送前网络就断了,这个时候任务执行失败,所以进行回退
+						
 					});
 				}
 				if(node.com == 'deleteTask') {
+					window.msg.console('[同步]>>删除任务');
 					window.NS.deleteTask({
-						date: node.date,
-						localid: node.localid,
+						date: node.param.date,
+						id:node.param.taskid,
+						localid: node.param.localid,
 					}, function(obj) {
 						window.msuo = true; //释放锁
+						window.LocalTaskList.shift();
+						window.msg.console('[同步]>>删除任务成功');
 					}, function(obj) {
 						if(obj.statusText == "error") {
-							checkNET('tb'); //同步ajax
+							window.msg.console('[同步]>>删除任务失败');
+							checkNET('tb'); 
 						}
-						window.LocalTaskList.unshift(node); //一般情况都是在任务发送前网络就断了,这个时候任务执行失败,所以进行回退
+						
 					});
 				}
 				if(node.com == 'updateTask') {
-					window.NS.deleteTask({
-						date: node.date,
-						content: node.content,
-						state: node.state,
-						localid: node.localid,
+					window.msg.console('[同步]>>更新任务');
+					window.NS.updateTask({
+						date: node.param.date,
+						content: node.param.content,
+						state: node.param.state,
+						localid: node.param.localid,
+						id:node.param.taskid,
 					}, function(obj) {
 						window.msuo = true; //释放锁
+						window.LocalTaskList.shift();
+						window.msg.console('[同步]>>更新任务成功');
 					}, function(obj) {
 						if(obj.statusText == "error") {
-							checkNET('tb'); //同步ajax
+							window.msg.console('[同步]>>更新任务失败');
+							checkNET('tb');
 						}
-						window.LocalTaskList.unshift(node); //一般情况都是在任务发送前网络就断了,这个时候任务执行失败,所以进行回退
+						
 					});
 				}
 			}
 		}
-	}, 100);
+	}, 800);
 })
+
+//任务队列缓存机制
+setInterval(function(){
+
+		window.DB.saveTaskList(window.LocalTaskList);
+	
+},5);

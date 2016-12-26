@@ -20,7 +20,7 @@ function mothedMap() {
 							var session = {
 								key: mongoose.Types.ObjectId().toString(),
 								userid: tuser._id.toString(),
-								lastDate: new Date().getTime() + (7 * 24 * 60 * 60 * 1000)
+								lastDate:new Date( new Date().getTime() + (7 * 24 * 60 * 60 * 1000)+28800000)
 							};
 							request.session = session;
 							userlist.push(request.session);
@@ -78,7 +78,7 @@ function mothedMap() {
 								name: param.name,
 								pass: param.pass,
 								registemail: param.email,
-								createtime: new Date().getTime(),
+								createtime:new Date(new Date().getTime()+28800000),
 								delete: false,
 								permission: true,
 								autosend: false,
@@ -196,13 +196,13 @@ function mothedMap() {
 	this.f_getListByDate = function(request, response, param) {
 			if(param) {
 				if(param.date != null) {
+
+					
 					taskModel.find({
 						'userid': request.session.userid,
 						'date': {
-							$gte: param.date
-						},
-						'date': {
-							$lt: param.date + 864000
+							$gte: new Date(new Date(param.date).getTime()+28800000),
+							$lt: new Date(new Date(param.date).getTime()+86400000+28800000)
 						}
 					}, function(err, res) {
 						if(err) {
@@ -215,14 +215,16 @@ function mothedMap() {
 								var node = res[i];
 								if(!node.delete) {
 									json.push({
-										id: node._id,
+										id: node.id.toString(),
 										content: node.content,
-										state: node.state
+										state: node.state,
+										'date':timeToLocalTime(node.date.getTime()-28800000),
+										localid:node.localid
 									});
 								}
 							};
 							var jsonstr = JSON.stringify(json);
-							response.write('{"state":"success","date":' + jsonstr + '}');
+							response.write('{"state":"success","data":' + jsonstr + '}');
 							response.end();
 							return false;
 						}
@@ -255,6 +257,7 @@ function mothedMap() {
 						sendday: res.sendday,
 						sendhour: res.sendhour,
 						sendmine: res.sendmine,
+						autosend:res.autosend,
 					};
 					var objstr = JSON.stringify(obj);
 					response.write('{"state":"success","data":' + objstr + '}');
@@ -365,23 +368,14 @@ function mothedMap() {
 						response.end();
 						return false;
 					} else {
-						if(res.task != null) {
-							res.tclist.push({
-								id: mongoose.Types.ObjectId(),
-								createtime: new Date().getTime(),
-								content: param.content,
-							});
-							res.save(function(err, res) {
-								if(err) {
-									response.write('{"state":"false"}');
-									response.end();
-									return false;
-								} else {
+						if(res!=null) {
 									response.write('{"state":"success","msg":"添加自动填充任务成功"}');
 									response.end();
 									return false;
-								}
-							});
+						}else{
+							response.write('{"state":"false"}');
+									response.end();
+									return false;
 						}
 					}
 				});
@@ -460,12 +454,12 @@ function mothedMap() {
 				}
 				var task = new taskModel({
 					userid: request.session.userid,
-					createtime: new Date().getTime(),
-					date: param.date,
+					createtime: new Date(new Date().getTime()+28800000),
+					date: new Date(new Date(param.date).getTime()+28800000),
 					content: param.content,
 					state: 'undone',
 					delete: false,
-					localid:param.localid,
+					localid:param.localid
 				});
 				task.save(function(err,res) {
 					if(err) {
@@ -473,7 +467,7 @@ function mothedMap() {
 						response.end();
 						return false;
 					} else {
-						response.write('{"state":"success","msg":"添加任务成功","localid":"'+res.localid+'","taskid":"'+res.id+'"}');
+						response.write('{"state":"success","msg":"添加任务成功","taskid":"'+res.id.toString()+'","localid":"'+res.localid+'"}');
 						response.end();
 						return true;
 					}
@@ -557,4 +551,16 @@ function parseJSON(req, res, next) {
 		req.body = ret;
 		next();
 	})
+}
+
+
+//笔记记录
+//mongodb存储时间会应为市区问题少8个小时，所以再存储的时候要增加8个小时
+function timeToLocalTime(date){
+	var time=new Date(date);
+	var str='';
+	str+=time.getFullYear()+'.';
+	str+=time.getMonth()+1+'.';
+	str+=time.getDate();
+	return str;
 }

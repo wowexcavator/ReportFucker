@@ -52,7 +52,9 @@
 				</div>
 			</div>
 			<div class="task">
-				<div class="complete"></div>
+				<div class="complete">
+					<pre id='log' style="overflow-x:scroll;white-space: pre-wrap;word-wrap: break-word;margin:10px;width: 100%;color:#00ff00;font-size: 13px;"></pre>
+				</div>
 				<div id="tasklist" class="tasklist" style="color:#00529e">
 					<ul>
 						<li class='.taskblock' data-hasetask='false'>
@@ -94,12 +96,12 @@
 					</div>
 					<p class="set-title">修改密码</p>
 					<div class="">
-						<input type="text" placeholder="请出入原密码" style="
+						<input type="text" id='input-oldpass' placeholder="请出入原密码" style="
             width: 90%;
             height: 27px;
             margin-left: 21px;
             ">
-						<input type="text" placeholder="请输入新密码" style="
+						<input type="text" id="input-newpass" placeholder="请输入新密码" style="
             width: 90%;
             height: 27px;
             margin-left: 21px;
@@ -395,46 +397,8 @@
 						<input id='autotask' type="text"><div id='btn-addAutoTask' class="btn btn-swing  sebtnw"><span class="fa fa-plus sebtn "></span>添加</div>
 						<div class="rr">
 						<table border="1" class="auto-table" id='tianchongsetter'>
-							<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
-								<tr>
-								<td>今天什么都没有做！</td>
-								<td><span class="fa fa-close btn-swing"></span></td>
-							</tr>
+
+							
 
 						</table>
 						</div>

@@ -316,8 +316,7 @@
 	tasklist.push(function() {
 				send('addTask', {
 					date: new Date().getTime(),
-					content: '测试而已',
-					localid:'12312312321321321321'
+					content: '测试而已'
 				}, function(data) {
 					data = JSON.stringify(data);
 					$('body').append('<p>增加任务-全参数：' + data + '<p>');
@@ -354,6 +353,14 @@
 				}, function(data) {
 					data = JSON.stringify(data);
 					$('body').append('<p>更新任务-wu参数：' + data + '<p>');
+				});
+			});
+			tasklist.push(function(){
+				send('getListByDate', {
+					date: new Date('2016-12-24').getTime()
+				}, function(data) {
+					data = JSON.stringify(data);
+					$('body').append('<p>根据时间获取任务信息：' + data + '<p>');
 				});
 			});
 </script>
