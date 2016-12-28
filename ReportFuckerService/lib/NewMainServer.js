@@ -43,7 +43,7 @@ http.createServer(function(request, response) {
 				response.end();	
 			}
 		}else{
-			if(path.indexOf('login')>-1||path.indexOf('logout')>-1){
+			if(path.indexOf('login')>-1||path.indexOf('logout')>-1||path.indexOf('regist')>-1){
 				//生成新的令牌
 				route.exec(path, request, response, post,activeUserList);
 			}else{

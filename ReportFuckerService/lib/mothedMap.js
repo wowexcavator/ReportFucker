@@ -16,7 +16,7 @@ function mothedMap() {
 						return false;
 					} else {
 						var tuser = res;
-						if(param.pass != null && param.pass == tuser.pass) { //登陆成功
+						if(tuser!=null&&param.pass != null && param.pass == tuser.pass) { //登陆成功
 							var session = {
 								key: mongoose.Types.ObjectId().toString(),
 								userid: tuser._id.toString(),
@@ -24,7 +24,7 @@ function mothedMap() {
 							};
 							request.session = session;
 							userlist.push(request.session);
-							response.write('{"state":"succcess","msg":"登陆成功","key":"' + session.key + '"}');
+							response.write('{"state":"success","msg":"登陆成功","key":"' + session.key + '"}');
 							response.end();
 							return true;
 						} else {
@@ -95,7 +95,7 @@ function mothedMap() {
 									return false;
 								} else {
 									if(na > 0) {
-										response.write('{"state":"succcess","msg":"注册成功"}');
+										response.write('{"state":"success","msg":"注册成功"}');
 										response.end();
 										return true;
 									}

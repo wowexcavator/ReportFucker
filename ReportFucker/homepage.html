@@ -1,3 +1,8 @@
+<script>
+var win = nw.Window.get();
+win.resizeTo(1100,650);
+win.setResizable(false);
+</script>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -35,7 +40,7 @@
 					<ul class="titlemenu">
 						<li>
 							<div class=" fa fa-paper-plane-o "></div>周报自动发送:
-							<span style="color:#4D89C1">关闭</span></li>
+							<span id='stateautosend' style="color:#4D89C1">关闭</span></li>
 							<li>
 								<div class=" fa fa-cloud "></div> 服务器连接:
 							<span style="color:#4D89C1" id='serverstate'>已连接到服务器</span>
@@ -53,7 +58,8 @@
 			</div>
 			<div class="task">
 				<div class="complete">
-					<pre id='log' style="overflow-x:scroll;white-space: pre-wrap;word-wrap: break-word;margin:10px;width: 100%;color:#00ff00;font-size: 13px;"></pre>
+					<pre id='log' style="overflow-x:scroll;float:left;white-space: pre-wrap;word-wrap: break-word;margin:10px;width: 80%;color:#00ff00;font-size: 13px;"></pre>
+					<div id='kaizen' style='300px;float:left;height: 200px;width: 17%;'><img id="kaizenimg" style="width: 90%;" src="img/kaizen/Kaizen_Transition_Stress.png"></div>
 				</div>
 				<div id="tasklist" class="tasklist" style="color:#00529e">
 					<ul>
@@ -84,7 +90,7 @@
 					<p class="set-title">账户</p>
 					<div class="accountinfo">
 						<img class="btn-pulse" src="img/123.jpg" style="margin-left:40px;float:left;width: 90px;height: 90px;border-radius: 10px;">
-						<div style="float: left;margin-top: 10px;margin-left: 20px;max-width: 100px;overflow: hidden;" id='st-username'>国际熊</div>
+						<div style="float: left;margin-top: 10px;margin-left: 20px;max-width: 100px;overflow: hidden;" id='st-username'></div>
 						<div class="btn-swing " id='btn-layout'  style="
             float: right;
             margin-right: 17px;
@@ -124,7 +130,7 @@
 					<p class="set-title">邮箱设置<span style="
     font-size: 12px;
     color: #ff5a5a;
-">:邮箱错误，无法发送报告</span></p>
+" id='emailError'></span></p>
 					<div class="emailInfo">
 						<input type="text" id='st-myemail' placeholder="我的邮箱账号">
 						<input type="text" id='st-myemailpass' placeholder="我的邮箱密码">

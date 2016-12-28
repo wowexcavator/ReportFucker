@@ -1,0 +1,406 @@
+<script>
+var win = nw.Window.get();
+	win.resizeTo(500,330);
+win.setResizable(false);
+</script>
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>注册</title>
+		<script src="js/jquery.min.js"></script>
+		<link rel="stylesheet" href="css/font-awesome.css">
+	</head>
+
+	<body>
+		<div class="content">
+			<img class="bgimg" src="img/welcome.jpg" />
+			<div class="title">注册</div>
+			<div class='login'>
+				<ul>
+					<li><span class='lend'>用户名：</span><input type="text" id='username'></li>
+					<li><span class='lend'>密__码：</span><input type="password" id='pass'></li>
+					<li><span class='lend'>邮__箱：</span><input type="text" id='email'></li>
+					<li><div id='registbtn'>注册</div></li>
+				</ul>
+			</div>
+			<div class=" fa fa-close quit "></div>
+		</div>
+		<div class=" fa fa-close quit "></div>
+	</body>
+
+</html>
+<style>
+
+
+.content{
+		 -webkit-app-region: drag;
+}
+.content li,.quit{
+	-webkit-app-region: no-drag;
+}
+#registbtn{
+	    border: 1px solid gray;
+    width: 178px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    margin:0 auto;
+    margin-top: 30px;
+    cursor: pointer;
+    margin-left: 30px;
+}
+.login{
+	font-family: "微软雅黑";
+	position: fixed;
+	width: 300px;
+	height: 250px;
+	top: 57px;;
+	right:20px;
+}
+.login input{
+	width: 180px;
+}
+.login li{
+	margin-top: 20px;
+	list-style: none;
+}
+.quit{
+	position: fixed;
+	top:0px ;
+	color:gray;
+	cursor: pointer;
+	right: 5px;
+}
+.lend{
+	    width: 71px;
+    display: block;
+    float: left;
+    color:#8c8c8c;
+}
+	body {
+		background: rgb(255, 255, 255);
+		/*background-image: url(welcome.jpg);*/
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		opacity: 0;
+	}
+	
+	.content {
+		border: 1px solid black;
+	}
+	
+	* {
+		overflow: hidden;
+	}
+	
+	.bgimg {
+		height: 328px;
+		float: left;
+	}
+	.title{
+		    font-size: 50px;
+    font-family: 微软雅黑;
+    color: #dee4ea;
+    margin-top: 18px;
+    margin-left: 13px;
+    float: left;
+	}
+	.detil{
+		position: absolute;
+		bottom: 2px;
+		left: 2px;
+	}
+	body{
+
+-moz-user-select: none; /*火狐*/
+
+-webkit-user-select: none; /*webkit浏览器*/
+
+-ms-user-select: none; /*IE10*/
+
+-khtml-user-select: none; /*早期浏览器*/
+
+user-select: none;
+
+}
+</style>
+<script>
+ 	$("input").keydown(function (e){
+		if(e.which == "13"){
+		$("#registbtn").click();
+		}
+	})
+ 	//禁止窗口里的拖放
+ 	document.ondragstart = function() {
+    return false;
+};
+	$(function(){
+		var speed=0.005;
+		var start=0;
+		var end=1;
+		var cur=0;
+		window.timer=setInterval(function(){
+			if(cur<=end){
+				cur+=speed;
+				$("body").css("opacity",cur);
+			}else{
+				clearInterval(window.timer);
+			}
+		},1)
+	})
+	
+//禁止向窗口拖放东西
+$(window).on('dragover', function(e) {
+	e.preventDefault();
+	e.originalEvent.dataTransfer.dropEffect = 'none';
+});
+$(window).on('drop', function(e) {
+	e.preventDefault();
+});
+//屏蔽右键按钮
+document.oncontextmenu = function() {
+	return false;
+}
+
+$('.quit').click(function(){
+	window.open('index.html');
+	win.close();
+});
+
+	
+var App=nw.App;
+	//本地存储操作对象
+window.DB = new localDB();
+
+//本地数据库读取
+function localDB() {
+
+	//数据源
+	this.Data = null;
+	//保存ServerTaskList
+	this.saveTaskList=function(list){
+		try {
+				localStorage.TaskList = JSON.stringify(list);
+			} catch(error) {
+				return false;
+			}
+			return false;
+	}
+	//读取ServerTaskList
+	this.getTaskList=function(){
+		try {
+				var list=JSON.parse(localStorage.TaskList);
+				if(list==null){
+					return [];
+				}else{
+					return list;
+				}
+			} catch(error) {
+				return [];
+			}
+	}
+
+	//将数据持久化
+	this.saveStorage = function(obj) {
+			try {
+				localStorage.Data = JSON.stringify(obj);
+			} catch(error) {
+				return false;
+			}
+			return true;
+		}
+		//获取持久化的数据
+	this.getStorage = function() {
+			try {
+				return JSON.parse(localStorage.Data);
+			} catch(error) {
+				return null;
+			}
+		}
+		//读取某一天的数据
+	this.getDataByDate = function(date) {
+			if(window.serverState) {//如果网络状况是联通的
+				window.NS.getListByDate({//此处只能异步的处理数据
+					'date':date,
+				},function(obj){
+					if(obj.state=='success'){
+						if(obj.data&&obj.data.length>0){
+							var date=obj.data[0].date;
+							var list=[];
+							for(var i=0;i<obj.data.length;i++){
+								var node=obj.data[i];
+								list.push({
+									date:node.date,
+									name:'',
+									id:node.id,
+									isTB:false,
+									content:node.content,
+									state:node.state,
+									localid:node.localid,
+									
+								});
+							}
+							window.DB.Data[date]=list;//覆盖本地得缓存
+							//将内存中得状态缓存到文件
+							window.DB.saveStorage(window.DB.Data);
+							//重新加载页面任务列表
+							$("#tasklist ul").html(window.TL.getTaskListStrutsByDate(window.DB.Data[date]));
+						}
+					}
+				});
+				//异步得话没办法,先返回一个结构给
+				if(this.Data[date] != null) {
+					return this.Data[date];
+				} else {
+					return null;
+				}
+				
+			} else {
+				if(this.Data[date] != null) {
+					return this.Data[date];
+				} else {
+					return null;
+				}
+
+			}
+		}
+	//更具localid获取taskID
+	this.getTaskIdByLocalId=function(date,localid){
+			for(var i = 0; i < this.Data[date].length; i++) {
+				if(this.Data[date][i].localid == localid) {
+					return this.Data[date][i].id;
+				}
+			}
+	}
+		//跟新某一天的数据
+	this.updateTask = function(date, data) {
+			for(var i = 0; i < this.Data[date].length; i++) {
+				if(this.Data[date][i].localid == data.localid) {
+					var powertable = {
+						'date': true,
+						name: true,
+						id: true,
+						isTb: true,
+						content: true,
+						state: true,
+						localid: false, //内部id,标识每天的几号任务
+					};
+					for(var n in data) {
+						if(powertable[n]) {
+							this.Data[date][i][n] = data[n];
+						}
+					}
+				}
+			}
+			this.saveStorage(this.Data);
+		}
+		//增加某一天的数据
+	this.setDateByDate = function(date, data) {
+			//如果本地数据存在,则更新,若不存在,则增加
+			if(this.Data[date] != null) {
+				this.Data[date + ''].push({
+					'date': date,
+					name: data.name,
+					id: data.id,
+					isTb: data.isTb,
+					content: data.content,
+					state: data.state,
+					localid: data.localid, //内部id,标识每天的几号任务
+				});
+			} else {
+				this.Data[date + ''] = [];
+				this.Data[date + ''].push({
+					'date': date,
+					name: data.name,
+					id: data.id,
+					isTb: data.isTb,
+					content: data.content,
+					state: data.state,
+					localid: data.localid, //内部id,标识每天的几号任务
+				});
+			}
+			//标记为未上传,调用上传模块进行扫描更新
+			this.saveStorage(this.Data);
+		}
+		//删除某项任务
+	this.deleteTask = function(date, localid) {
+			var tasklist = this.Data[date];
+			if(tasklist) {
+				for(var i = 0; i < tasklist.length; i++) {
+					if(tasklist[i].localid == localid) {
+						tasklist.splice(i, 1); //删除数组中的
+					}
+				}
+			}
+			this.saveStorage(this.Data);
+		}
+	//获取登陆key
+	this.getKey=function(){
+		if(localStorage.UserKey){
+			return localStorage.UserKey;
+		}else{
+			return null;
+		}
+	}
+	//设置登陆key
+	this.setKey=function(key){
+		
+			localStorage.UserKey=key;
+		
+	}
+		//构造函数
+
+	if(localStorage.Data != null) {
+		this.Data = this.getStorage();
+	} else {
+		this.saveStorage({});
+		this.Data = this.getStorage();
+	}
+
+}
+
+
+
+//	setTimeout(function(){
+//		win.hide();
+//		window.open('homepage.html');
+//		win.close();
+//	},5000);
+$('#registbtn').click(function(){
+	var n=$('#username').val();
+	var p=$('#pass').val();
+	var e=$('#email').val();
+	$.post('http://localhost:8888/' + 'regist', {
+			name: n,
+			pass: p,
+			email:e
+	}, function(obj) {
+				if(obj!=null){
+					if(obj.state=='success'){
+						if(obj.msg){
+							alert(obj.msg);
+							
+						}			
+						window.open('index.html');
+						win.close();
+					}else{
+						if(obj.msg){
+							alert(obj.msg);							
+						}else{
+							alert('注册失败!');
+						}
+					}
+				}
+		});
+
+});
+
+$(function(){
+	win.show();
+})
+
+</script>

@@ -416,3 +416,11 @@ user-select: none;
 .auto-table tr>td .fa{
 	cursor: pointer;
 }
+
+#log::-webkit-scrollbar  
+{  
+    width: 0px;  
+}  
+#log{
+	height: 100px;
+}
